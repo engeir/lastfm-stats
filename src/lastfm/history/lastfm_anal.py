@@ -1,6 +1,7 @@
 import re
 import string
 
+import matplotlib.cm as cm
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,8 +29,6 @@ ticks_font_h = fm.FontProperties(
 def get_colors(cmap, n, start=0.0, stop=1.0, alpha=1.0, reverse=False):
     """return n-length list of rgba colors from the passed colormap name and alpha,
     limit extent by start/stop values and reverse list order if flag is true"""
-    import matplotlib.cm as cm
-    import numpy as np
 
     colors = [cm.get_cmap(cmap)(x) for x in np.linspace(start, stop, n)]
     colors = [(r, g, b, alpha) for r, g, b, _ in colors]
@@ -75,8 +74,8 @@ def make_label(row, maxlength=30, suffix="..."):
     artist = row["artist"]
     track = row["track"]
     if len(track) > maxlength:
-        track = "{}{}".format(track[: maxlength - len(suffix)], suffix)
-    return "{}\n{}".format(artist, track)
+        track = f"{track[:maxlength - len(suffix)]}{suffix}"
+    return f"{artist}\n{track}"
 
 
 def plot_top_tracks() -> None:
@@ -114,8 +113,8 @@ def make_label(row, maxlength=25, suffix="..."):
     artist = row["artist"]
     track = row["album"]
     if len(track) > maxlength:
-        track = "{}{}".format(track[: maxlength - len(suffix)], suffix)
-    return "{}\n{}".format(artist, track)
+        track = f"{track[:maxlength - len(suffix)]}{suffix}"
+    return f"{artist}\n{track}"
 
 
 def plot_top_albums() -> None:
@@ -235,7 +234,8 @@ def plot_scrobbles_per_month() -> None:
     # count number of scrobbles in each month
     month_counts = scrobbles_10["month"].value_counts().sort_index()
 
-    # not every month necessarily has a scrobble, so fill in missing months with zero counts
+    # not every month necessarily has a scrobble, so fill in missing months with zero
+    # counts
     date_range = pd.date_range(
         start=min(scrobbles_10["timestamp"]),
         end=max(scrobbles_10["timestamp"]),
@@ -261,7 +261,7 @@ def plot_scrobbles_per_month() -> None:
     ax.set_ylabel("Number of plays", fontproperties=label_font)
     ax.set_xlabel("", fontproperties=label_font)
     ax.set_title(
-        "Number of songs played per month, {}-{}".format(min_year, max_year),
+        f"Number of songs played per month, {min_year}-{max_year}",
         fontproperties=title_font,
     )
 
@@ -491,7 +491,8 @@ def plot_cumulative_play_count() -> None:
         plays.groupby(["artist", "year"]).count().groupby(level=[0]).cumsum()["track"]
     )
 
-    # make sure we have each year represented for each artist, even if they got no plays that year
+    # make sure we have each year represented for each artist, even if they got no plays
+    # that year
     plays = plays.unstack().T.fillna(method="ffill").T.stack()
     top_artists = plays.index.levels[0]
 
@@ -526,13 +527,13 @@ def plot_cumulative_play_count() -> None:
 
 
 def plot_first_letter_count() -> None:
-    # remove 'The ' and 'A ' preceding artist names, get unique set of names, then get first
-    # letter frequency
+    # remove 'The ' and 'A ' preceding artist names, get unique set of names, then get
+    # first letter frequency
     artists_clean = scrobbles["artist"].str.replace("The ", "").str.replace("A ", "")
     first_letters = (
         pd.Series(artists_clean.unique()).map(lambda x: x.upper()[0]).value_counts()
     )
-    first_letters = first_letters[[c for c in string.ascii_uppercase]]
+    first_letters = first_letters[list(string.ascii_uppercase)]
 
     # plot the frequency of artist names that begin with each letter
     ax = first_letters.plot(
@@ -600,7 +601,7 @@ def most_common_first_word_in_artist_name() -> None:
 def most_common_word_in_artist_name() -> None:
     # what are the most common words in all the artist names, anywhere in the name?
     artists_clean = scrobbles["artist"].str.replace("The ", "").str.replace("A ", "")
-    word_list = []
+    word_list: list[str] = []
     stop_list = [
         "&",
         "the",
@@ -616,9 +617,7 @@ def most_common_word_in_artist_name() -> None:
         "y",
     ]
     for artist in artists_clean.unique():
-        for word in artist.split():
-            word_list.append(word.lower())
-
+        word_list.extend(word.lower() for word in artist.split())
     word_list = [word for word in word_list if word not in stop_list]
     pd.Series(word_list).value_counts().head(15)
 
@@ -636,7 +635,7 @@ def length_distribution() -> None:
     n = 50
     name_lengths = pd.Series([len(artist) for artist in artists_clean.unique()])
     name_lengths = name_lengths.value_counts().sort_index()
-    name_lengths = name_lengths.iloc[0 : n + 1].reindex(range(n + 1), fill_value=0)
+    name_lengths = name_lengths.iloc[:n + 1].reindex(range(n + 1), fill_value=0)
 
     ax = name_lengths.plot(
         kind="bar",
