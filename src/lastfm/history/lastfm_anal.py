@@ -452,29 +452,23 @@ def top_in_month() -> None:
     artists_month.index = [n + 1 for n in artists_month.index]
     artists_month.head(10)
 
+    tracks_played_in_given_month(scrobbles_month, "track")
+    tracks_played_in_given_month(scrobbles_month, "album")
+
+
+# TODO Rename this here and in `top_in_month`
+def tracks_played_in_given_month(scrobbles_month, arg1):
     # what tracks did i play the most that month?
     tracks_month = (
-        scrobbles_month.groupby(["artist", "track"])
+        scrobbles_month.groupby(["artist", arg1])
         .count()
         .sort_values("timestamp", ascending=False)
     )
     tracks_month = tracks_month.reset_index().rename(
         columns={"timestamp": "play count"}
-    )[["artist", "track", "play count"]]
+    )[["artist", arg1, "play count"]]
     tracks_month.index = [n + 1 for n in tracks_month.index]
     tracks_month.head(10)
-
-    # what albums did i play the most that month?
-    albums_month = (
-        scrobbles_month.groupby(["artist", "album"])
-        .count()
-        .sort_values("timestamp", ascending=False)
-    )
-    albums_month = albums_month.reset_index().rename(
-        columns={"timestamp": "play count"}
-    )[["artist", "album", "play count"]]
-    albums_month.index = [n + 1 for n in albums_month.index]
-    albums_month.head(10)
 
 
 def last_five_times_i_played() -> None:
