@@ -1,14 +1,14 @@
 import re
 import string
+import plastik
 
-import matplotlib.cm as cm
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pytz
-
 from lastfm.config import TIME_ZONE
+from matplotlib import cm
 
 # define the fonts to use for plots
 family = "DejaVu Sans"
@@ -27,9 +27,9 @@ ticks_font_h = fm.FontProperties(
 
 
 def get_colors(cmap, n, start=0.0, stop=1.0, alpha=1.0, reverse=False):
-    """return n-length list of rgba colors from the passed colormap name and alpha,
-    limit extent by start/stop values and reverse list order if flag is true"""
-
+    """Return n-length list of rgba colors from the passed colormap name and alpha,
+    limit extent by start/stop values and reverse list order if flag is true
+    """
     colors = [cm.get_cmap(cmap)(x) for x in np.linspace(start, stop, n)]
     colors = [(r, g, b, alpha) for r, g, b, _ in colors]
     return list(reversed(colors)) if reverse else colors
@@ -37,7 +37,7 @@ def get_colors(cmap, n, start=0.0, stop=1.0, alpha=1.0, reverse=False):
 
 artists_most = pd.read_csv("data/lastfm_top_artists.csv", encoding="utf-8")
 artists_most = artists_most.set_index("artist")["play_count"].head(25)
-print(artists_most.head())
+# print(artists_most.head())
 
 
 def plot_top_artists() -> None:
@@ -151,8 +151,8 @@ def plot_top_albums() -> None:
 # read the all-time scrobbles data set
 scrobbles = pd.read_csv("data/lastfm_scrobbles.csv", encoding="utf-8")
 scrobbles = scrobbles.drop("timestamp", axis=1)
-print("{:,} total scrobbles".format(len(scrobbles)))
-print("{:,} total artists".format(len(scrobbles["artist"].unique())))
+# print(f"{len(scrobbles):,} total scrobbles")
+# print("{:,} total artists".format(len(scrobbles["artist"].unique())))
 
 # convert to datetime
 scrobbles["timestamp"] = pd.to_datetime(scrobbles["datetime"])
@@ -168,7 +168,7 @@ def get_year(x):
 
 
 def get_month(x):
-    return "{}-{:02}".format(convert_tz(x).year, convert_tz(x).month)  # inefficient
+    return f"{convert_tz(x).year}-{convert_tz(x).month:02}"  # inefficient
 
 
 def get_day(x):
@@ -193,7 +193,7 @@ scrobbles = scrobbles.drop(labels=["datetime"], axis=1)
 
 # drop rows with 01-01-1970 as timestamp
 scrobbles = scrobbles[scrobbles["year"] > 1970]
-print(scrobbles.head())
+# print(scrobbles.head())
 
 
 def plot_scrobbles_per_year() -> None:
@@ -327,7 +327,7 @@ def plot_scrobbles_per_hour() -> None:
         markeredgewidth=2,
     )
 
-    xlabels = hour_counts.index.map(lambda x: "{:02}:00".format(x))
+    xlabels = hour_counts.index.map(lambda x: f"{x:02}:00")
     ax.set_xticks(range(len(xlabels)))
     ax.set_xticklabels(xlabels, rotation=45, rotation_mode="anchor", ha="right")
 
@@ -369,7 +369,7 @@ def plot_scrobbles_per_weekday_and_hour() -> None:
         ax = weekday_hour_counts[day].plot(kind="line", linewidth=4, alpha=0.6, c=c)
         lines.append(day_names[day])
 
-    xlabels = hour_numbers.map(lambda x: "{:02}:00".format(x))
+    xlabels = hour_numbers.map(lambda x: f"{x:02}:00")
     ax.set_xticks(range(len(xlabels)))
     ax.set_xticklabels(xlabels, rotation=45, rotation_mode="anchor", ha="right")
 
@@ -476,11 +476,14 @@ def last_five_times_i_played() -> None:
     print(scrobbles[scrobbles["artist"].str.contains("Metallica")].head())
 
 
-def plot_cumulative_play_count() -> None:
+def plot_cumulative_play_count(since: int = 2005, n: int = 10) -> None:
     # get the cumulative play counts since 2009 for the top n most listened-to artists
-    n = 10
+    # print(scrobbles)
+    # scrobbles = scrobbles[scrobbles["year"] > 1970]
+    # scrobbles = scrobbles[scrobbles["year"] >= since]
+    # scrobb = scrobbles[scrobbles["year"] > since]
     plays = scrobbles[scrobbles["artist"].isin(artists_most.head(n).index)]
-    plays = plays[plays["year"] >= 2009]
+    plays = plays[plays["year"] >= since]
     plays = (
         plays.groupby(["artist", "year"]).count().groupby(level=[0]).cumsum()["track"]
     )
@@ -492,16 +495,17 @@ def plot_cumulative_play_count() -> None:
 
     # get one color per artist
     colors = get_colors("Dark2", n)
+    colors = plastik.colors.create_colorlist("cmc.batlow", n)
 
     fig, ax = plt.subplots(figsize=[8, 6])
     lines = []
     for artist, c in zip(top_artists, colors):
-        ax = plays[artist].plot(kind="line", linewidth=4, alpha=0.6, marker="o", c=c)
+        ax = plays[artist].plot(kind="line", linewidth=4, alpha=0.6, marker="o")
         lines.append(artist)
 
-    ax.set_xlim(
-        (plays.index.get_level_values(1).min(), plays.index.get_level_values(1).max())
-    )
+    # ax.set_xlim(
+    #     (plays.index.get_level_values(1).min(), plays.index.get_level_values(1).max())
+    # )
 
     ax.yaxis.grid(True)
     ax.set_xticklabels(
@@ -514,6 +518,7 @@ def plot_cumulative_play_count() -> None:
     )
     ax.legend(lines, loc="upper right", bbox_to_anchor=(1.33, 1.016))
 
+    plt.tight_layout()
     plt.savefig(
         "images/lastfm-scrobbles-top-artists-years.png", dpi=96, bbox_inches="tight"
     )
@@ -619,7 +624,7 @@ def most_common_word_in_artist_name() -> None:
 def longest_artist_name() -> None:
     # what is the longest artist name?
     artists_clean = scrobbles["artist"].str.replace("The ", "").str.replace("A ", "")
-    print('"{}"'.format(max(artists_clean, key=len)))
+    print(f'"{max(artists_clean, key=len)}"')
 
 
 def length_distribution() -> None:
@@ -629,7 +634,7 @@ def length_distribution() -> None:
     n = 50
     name_lengths = pd.Series([len(artist) for artist in artists_clean.unique()])
     name_lengths = name_lengths.value_counts().sort_index()
-    name_lengths = name_lengths.iloc[:n + 1].reindex(range(n + 1), fill_value=0)
+    name_lengths = name_lengths.iloc[: n + 1].reindex(range(n + 1), fill_value=0)
 
     ax = name_lengths.plot(
         kind="bar",
@@ -661,4 +666,6 @@ def length_distribution() -> None:
 
 
 if __name__ == "__main__":
-    plot_scrobbles_per_weekday_and_hour()
+    # plot_scrobbles_per_weekday_and_hour()
+    plot_cumulative_play_count(2019, n=50)
+    # plot_top_albums()
