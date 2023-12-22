@@ -1,9 +1,34 @@
 """The now-playing page."""
 
+import pylast
 import reflex as rx
 
+from lastfm.config import USER_NAME
 from lastfm.templates import template
-from lastfm.tools import np
+from lastfm.tools.mylast import lastfm_network
+
+
+class NowPlaying:
+    def __init__(self) -> None:
+        self.now_playing = "Nothing is playing"
+
+    def reset(self) -> None:
+        self.now_playing = ""
+
+    def find_now_playing(self) -> pylast.Track:
+        self.reset()
+        try:
+            now_playing = lastfm_network.get_user(USER_NAME).get_now_playing()
+            if now_playing is not None:
+                return now_playing
+        except (
+            pylast.MalformedResponseError,
+            pylast.NetworkError,
+            pylast.WSError,
+        ) as e:
+            output(f"Error: {e}", "error")
+        else:
+            return "I'm not listening to music atm :/"
 
 
 class State(rx.State):
@@ -15,14 +40,10 @@ class State(rx.State):
 
     def get_nowplaying(self):
         """Get the image from the prompt."""
-        # if self.prompt == "":
-        #     return rx.window_alert("Prompt Empty")
-
         self.processing, self.complete = True, False
         yield
-        response = np.NowPlaying().find_now_playing()
+        response = NowPlaying().find_now_playing()
         self.now_playing = str(response)
-        # self.now_playing = f"{response.artist} – {response.title}"
         self.processing, self.complete = False, True
 
 
@@ -36,7 +57,6 @@ def now_playing() -> rx.Component:
     """
     return rx.vstack(
         rx.heading("Now Playing", font_size="3em"),
-        rx.text("Welcome to Reflex!"),
         rx.button(
             "What are you listening to, Eirik?",
             on_click=State.get_nowplaying,

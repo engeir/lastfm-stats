@@ -107,66 +107,23 @@ def main() -> str:
     # return out if isinstance(out, str) else "dunno"
 
 
-class NowPlaying:
-    def __init__(self) -> None:
-        self.now_playing = "Nothing is playing"
-
-    def reset(self) -> None:
-        self.now_playing = ""
-
-    def find_now_playing(self) -> pylast.Track:
-        self.reset()
-        # parser = argparse.ArgumentParser(
-        #     description="Show my now playing song, or that of a given username",
-        #     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        # )
-        # parser.add_argument(
-        #     "username",
-        #     nargs="?",
-        #     default=USER_NAME,
-        #     help="Show now playing of this username",
-        # )
-        # parser.add_argument("--loop", action="store_true", help="Loop until Ctrl-C")
-        # parser.add_argument("--say", action="store_true", help="Announcertron 4000")
-        # args = parser.parse_args()
-        last_played = None
-        while True:
-            try:
-                now_playing = lastfm_network.get_user(USER_NAME).get_now_playing()
-                # output("last:", last_played)
-                # output("now: ", now_playing)
-                if now_playing != last_played:
-                    last_played = now_playing
-                    return now_playing
-                time.sleep(15)
-            except (
-                # KeyError,
-                pylast.MalformedResponseError,
-                pylast.NetworkError,
-                pylast.WSError,
-            ) as e:
-                output(f"Error: {e}", "error")
-        # now_playing = lastfm_network.get_user(args.username).get_now_playing()
-        # if now_playing is None:
-        #     return False
-        # return now_playing
-
-
 def show_last() -> pylast.Track:
-    parser = argparse.ArgumentParser(
-        description="Show my now playing song, or that of a given username",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
-    parser.add_argument(
-        "username",
-        nargs="?",
-        default=USER_NAME,
-        help="Show now playing of this username",
-    )
-    parser.add_argument("--loop", action="store_true", help="Loop until Ctrl-C")
-    parser.add_argument("--say", action="store_true", help="Announcertron 4000")
-    args = parser.parse_args()
-    now_playing = lastfm_network.get_user(args.username).get_now_playing()
+    # parser = argparse.ArgumentParser(
+    #     description="Show my now playing song, or that of a given username",
+    #     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    # )
+    # parser.add_argument(
+    #     "username",
+    #     nargs="?",
+    #     default=USER_NAME,
+    #     help="Show now playing of this username",
+    # )
+    # parser.add_argument("--loop", action="store_true", help="Loop until Ctrl-C")
+    # parser.add_argument("--say", action="store_true", help="Announcertron 4000")
+    # args = parser.parse_args()
+    now_playing = lastfm_network.get_user(USER_NAME).get_now_playing()
+    print(now_playing)
+    print(type(now_playing))
     if hasattr(now_playing, "artist"):
         return now_playing
     return False
