@@ -109,6 +109,7 @@ celerybeat.pid
 cover/
 coverage.xml
 cython_debug/
+data/
 db.sqlite3
 db.sqlite3-journal
 develop-eggs/
@@ -138,4 +139,3 @@ var/
 venv.bak/
 venv/
 wheels/
-data/

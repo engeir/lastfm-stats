@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from lastfm import styles
-from lastfm.components.sidebar import sidebar
-from typing import Callable
+from collections.abc import Callable
 
 import reflex as rx
+
+from lastfm import styles
+from lastfm.components.sidebar import sidebar
 
 # Meta tags for the app.
 default_meta = [
@@ -20,7 +21,8 @@ default_meta = [
 def menu_button() -> rx.Component:
     """The menu button on the top right of the page.
 
-    Returns:
+    Returns
+    -------
         The menu button component.
     """
     from reflex.page import get_decorated_pages
@@ -81,7 +83,8 @@ def template(
         on_load: The event handler(s) called when the page load.
         script_tags: Scripts to attach to the page.
 
-    Returns:
+    Returns
+    -------
         The template with the page content.
     """
 
@@ -91,7 +94,8 @@ def template(
         Args:
             page_content: The content of the page.
 
-        Returns:
+        Returns
+        -------
             The template with the page content.
         """
         # Get the meta tags for the page.

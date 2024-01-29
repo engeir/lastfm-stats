@@ -10,5 +10,6 @@ API_SECRET = subprocess.check_output(["pass", "Lastfm/API_SECRET"]).strip().deco
 USER_NAME = subprocess.check_output(["pass", "Lastfm/Username"]).strip().decode()
 PASSWORD = subprocess.check_output(["pass", "Lastfm/Password"]).strip().decode()
 PASSWORD_HASH = pylast.md5(PASSWORD)
+GENIUS_TOKEN = subprocess.check_output(["pass", "Genius/Client-access-token"]).strip().decode()
 
 TIME_ZONE = pendulum.timezone("Europe/Oslo")

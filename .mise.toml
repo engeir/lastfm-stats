@@ -1,2 +1,12 @@
 [tools]
-python = {version='3.11', virtualenv='.venv'}
+python = { version = "3.11", virtualenv = ".venv" }
+
+[tasks.run]
+description = "Run the app (reflex)"
+run = "reflex run"
+alias = "r"
+
+[tasks.install]
+description = "Install all dependencies"
+run = "poetry install"
+alias = "i"
