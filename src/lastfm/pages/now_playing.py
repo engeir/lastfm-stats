@@ -40,7 +40,7 @@ class NowPlaying:
             return "I'm not listening to music atm :/"
 
 
-class State(rx.State):
+class NowPlayingState(rx.State):
     """The app state."""
 
     now_playing = ""
@@ -49,6 +49,11 @@ class State(rx.State):
     playcount = ""
     artist = ""
     artist_playcount = ""
+    artist_top_albums = ""
+    artist_top_tracs = ""
+    artist_similar = ""
+    album = ""
+    album_playcount = ""
     duration = ""
     info = ""
     lyrics = ""
@@ -56,7 +61,7 @@ class State(rx.State):
     complete = False
     playing = False
 
-    def get_nowplaying(self):
+    def get_nowplaying(self) -> None:
         """Get the currently playing audio."""
         self.processing, self.complete = True, False
         yield
@@ -70,8 +75,35 @@ class State(rx.State):
                 self.song = response.get_name()
                 self.album_cover = response.get_cover_image()
                 self.playcount = response.get_userplaycount()
-                self.artist = response.get_artist().get_name()
-                self.artist_playcount = response.get_artist().get_userplaycount()
+                artist = response.get_artist()
+                artist.username = USER_NAME
+                self.artist = artist.get_name()
+                self.artist_playcount = artist.get_userplaycount()
+                # self.artist_top_tracs = str(artist.get_top_tracks(limit=5)[0])
+                # self.artist_top_albums = str(artist.get_top_albums(limit=5))
+                self.artist_top_tracs = (
+                    '"'
+                    + '", "'.join(
+                        [a.item.get_name() for a in artist.get_top_tracks(limit=5)]
+                    )
+                    + '"'
+                )
+                self.artist_top_albums = (
+                    '"'
+                    + '", "'.join(
+                        [a.item.get_name() for a in artist.get_top_albums(limit=5)]
+                    )
+                    + '"'
+                )
+                self.artist_similar = (
+                    '"'
+                    + '", "'.join(
+                        [a.item.get_name() for a in artist.get_similar(limit=5)]
+                    )
+                    + '"'
+                )
+                self.album = response.get_album().get_name()
+                self.album_playcount = response.get_album().get_userplaycount()
                 self.duration = _convert_ms_to_hms(response.get_duration())
                 self.info = response.get_mbid()
                 self.lyrics = get_lyrics(self.artist, self.song)
@@ -87,61 +119,96 @@ def now_playing() -> rx.Component:
     rx.Component
         The UI for the now-playing page.
     """
+    list_item_color = "purple"
     return rx.vstack(
         rx.heading("Now Playing", font_size="3em"),
         rx.button(
             "What are you listening to, Eirik?",
-            on_click=State.get_nowplaying,
-            is_loading=State.processing,
+            on_click=NowPlayingState.get_nowplaying,
+            is_loading=NowPlayingState.processing,
             width="100%",
         ),
         rx.cond(
-            State.complete,
-            rx.heading(State.now_playing, color="purple", size="md"),
+            NowPlayingState.complete,
+            rx.heading(NowPlayingState.now_playing, color="purple", size="md"),
         ),
         rx.cond(
-            State.playing,
+            NowPlayingState.playing,
             rx.hstack(
-                rx.image(src=State.album_cover),
+                rx.image(src=NowPlayingState.album_cover),
                 # https://reflex.dev/docs/library/chakra/media/icon/
                 rx.list(
                     rx.list_item(
-                        rx.icon(tag="repeat", color="black"),
+                        rx.icon(tag="time", color=list_item_color),
+                        " It is " + NowPlayingState.duration + " long",
+                    ),
+                    rx.list_item(
+                        rx.icon(tag="repeat", color=list_item_color),
                         " I have listened to this track "
-                        + State.playcount
+                        + NowPlayingState.playcount
                         + " times :)",
                     ),
                     rx.list_item(
-                        rx.icon(tag="repeat", color="black"),
-                        " I have listened to "
-                        + State.artist
+                        rx.icon(tag="repeat", color=list_item_color),
+                        " I have listened to the album "
+                        + NowPlayingState.album
                         + " "
-                        + State.artist_playcount
+                        + NowPlayingState.album_playcount
                         + " times :)",
                     ),
                     rx.list_item(
-                        rx.icon(tag="time", color="black"),
-                        " It is " + State.duration + " long",
+                        rx.icon(tag="repeat", color=list_item_color),
+                        " I have listened to "
+                        + NowPlayingState.artist
+                        + " "
+                        + NowPlayingState.artist_playcount
+                        + " times :)",
                     ),
+                    rx.list_item(
+                        rx.icon(tag="star", color=list_item_color),
+                        " Their top 5 songs are " + NowPlayingState.artist_top_tracs,
+                    ),
+                    rx.list_item(
+                        rx.icon(tag="sun", color=list_item_color),
+                        " Their top 5 albums are " + NowPlayingState.artist_top_albums,
+                    ),
+                    rx.list_item(
+                        rx.icon(tag="view", color=list_item_color),
+                        " If you enjoy listening to "
+                        + NowPlayingState.artist
+                        + ", here are five similar artists! "
+                        + NowPlayingState.artist_similar,
+                    ),
+                    rx.list_item(
+                        rx.icon(tag="lock", color=list_item_color),
+                        " It's MusicBrainz ID is " + NowPlayingState.info,
+                    ),
+                    width="100%",
                 ),
                 spacing="10%",
+                width="80%",
             ),
         ),
         rx.cond(
-            State.playing,
+            NowPlayingState.playing,
             rx.vstack(
                 rx.markdown("## Lyrics"),
                 rx.markdown(
                     "I searched on [Genius](https://genius.com/) for the lyrics of "
-                    + f'"{State.artist}" (artist) and "{State.song}" (song), '
+                    + f'"{NowPlayingState.artist}" (artist) and "{NowPlayingState.song}" (song), '
                     + "and this is what I found:"
                 ),
-                rx.code_block(
-                    State.lyrics,
-                    language="markup",
-                    copy_button=True,
-                    wrap_long_lines=True,
-                    show_line_numbers=True,
+                rx.box(
+                    rx.code_block(
+                        NowPlayingState.lyrics,
+                        language="markup",
+                        copy_button=True,
+                        wrap_long_lines=True,
+                        show_line_numbers=True,
+                    ),
+                    height="50vh",
+                    width="80%",
+                    overflow_y="auto",
                 ),
             ),
         ),

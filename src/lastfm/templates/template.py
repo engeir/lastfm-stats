@@ -29,6 +29,10 @@ def menu_button() -> rx.Component:
 
     return rx.box(
         rx.menu(
+            rx.button(
+                rx.icon(tag="moon"),
+                on_click=rx.toggle_color_mode,
+            ),
             rx.menu_button(
                 rx.icon(
                     tag="hamburger",
