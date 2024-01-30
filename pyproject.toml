@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lastfm"
-version = "0.1.0"
+version = "0.2.0"
 description = "Simple Last.fm app"
 authors = ["Eirik Rolland Enger <engeir@pm.me>"]
 license = "MIT"

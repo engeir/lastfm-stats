@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.2.0](https://github.com/engeir/lastfm-stats/compare/v0.1.0...v0.2.0) (2024-01-30)
+
+
+### Features
+
+* **now_playing:** add lots of info conditionally its playing ([b623444](https://github.com/engeir/lastfm-stats/commit/b623444b6af35cf5d43dcff8f89f910c0dffe94f))
+
+
+### Miscellaneous
+
+* add downloads script ([c1cfe75](https://github.com/engeir/lastfm-stats/commit/c1cfe7505efe7432dd480f826811083ff1837d15))
+
+
+### Continuous Integration
+
+* **github:** create releases with bot account ([cf8464b](https://github.com/engeir/lastfm-stats/commit/cf8464b02acd44da557d2284414a86818c4fe783))
+
+
+### Documentation
+
+* add links to README ([c1cfe75](https://github.com/engeir/lastfm-stats/commit/c1cfe7505efe7432dd480f826811083ff1837d15))
+
 ## 0.1.0 (2023-12-22)
 
 
