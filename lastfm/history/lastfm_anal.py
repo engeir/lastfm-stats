@@ -1,14 +1,15 @@
 import re
 import string
-import plastik
 
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import plastik
 import pytz
-from lastfm.config import TIME_ZONE
 from matplotlib import cm
+
+from lastfm.config import TIME_ZONE
 
 # define the fonts to use for plots
 family = "DejaVu Sans"
@@ -365,7 +366,7 @@ def plot_scrobbles_per_weekday_and_hour() -> None:
 
     fig, ax = plt.subplots(figsize=[10, 6])
     lines = []
-    for day, c in zip(day_numbers, colors):
+    for day, c in zip(day_numbers, colors, strict=False):
         ax = weekday_hour_counts[day].plot(kind="line", linewidth=4, alpha=0.6, c=c)
         lines.append(day_names[day])
 
@@ -499,7 +500,7 @@ def plot_cumulative_play_count(since: int = 2005, n: int = 10) -> None:
 
     fig, ax = plt.subplots(figsize=[8, 6])
     lines = []
-    for artist, c in zip(top_artists, colors):
+    for artist, c in zip(top_artists, colors, strict=False):
         ax = plays[artist].plot(kind="line", linewidth=4, alpha=0.6, marker="o")
         lines.append(artist)
 

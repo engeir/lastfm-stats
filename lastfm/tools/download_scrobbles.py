@@ -1,6 +1,6 @@
 """Download and update Lastfm scrobbles."""
 
-import time
+# import time
 
 import pandas as pd
 import requests

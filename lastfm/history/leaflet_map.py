@@ -7,9 +7,9 @@ from IPython.display import IFrame
 
 # load the geocoded data set of artists
 df = pd.read_csv("data/mb_geocoded.csv", encoding="utf-8")
-print("{:,} total rows".format(len(df)))
+print(f"{len(df):,} total rows")
 df = df[pd.notnull(df["place_latlng"])]
-print("{:,} rows with lat-long".format(len(df)))
+print(f"{len(df):,} rows with lat-long")
 print("{:,} unique lat-longs".format(len(df["place_latlng"].unique())))
 
 # determine how many times each place appears in dataset, and break latlng into discrete lat and long
@@ -33,12 +33,12 @@ for place_full in df["place_full"].unique():
 
     if place_count <= num_to_show:
         for name in names:
-            artists = "{}{}{}".format(artists, name, line_break)
+            artists = f"{artists}{name}{line_break}"
 
     else:
         for name in names[0:num_to_show]:
-            artists = "{}{}{}".format(artists, name, line_break)
-        artists = "{}...and {:,} more".format(artists, place_count - num_to_show)
+            artists = f"{artists}{name}{line_break}"
+        artists = f"{artists}...and {place_count - num_to_show:,} more"
 
     features.append([place_full, artists])
 
@@ -72,10 +72,10 @@ for label in df_unique.index:
 
 # extract lat & lng, convert to float, jitter, and round to 7 decimal places
 df_leaflet["lat"] = df_leaflet["place_full"].map(
-    lambda x: "{:.7f}".format(jitter(float(place_lat_lng[x][0])))
+    lambda x: f"{jitter(float(place_lat_lng[x][0])):.7f}"
 )
 df_leaflet["lng"] = df_leaflet["place_full"].map(
-    lambda x: "{:.7f}".format(jitter(float(place_lat_lng[x][1])))
+    lambda x: f"{jitter(float(place_lat_lng[x][1])):.7f}"
 )
 df_leaflet.head()
 

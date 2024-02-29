@@ -37,7 +37,7 @@ geocode_cache = (
 log = lg.getLogger("mb_geocoder")
 if not getattr(log, "handler_set", None):
     todays_date = dt.datetime.today().strftime("%Y_%m_%d_%H_%M_%S")
-    log_filename = "logs/mb_geocoder_{}.log".format(todays_date)
+    log_filename = f"logs/mb_geocoder_{todays_date}.log"
     handler = lg.FileHandler(log_filename, encoding="utf-8")
     formatter = lg.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s")
     handler.setFormatter(formatter)
@@ -48,7 +48,7 @@ if not getattr(log, "handler_set", None):
 
 # make a http request to api and return the result
 def make_request(url):
-    log.info("requesting {}".format(url))
+    log.info(f"requesting {url}")
     return requests.get(url).json()
 
 
@@ -69,7 +69,7 @@ def geocode_google(address):
     if len(data["results"]) > 0:
         lat = data["results"][0]["geometry"]["location"]["lat"]
         lng = data["results"][0]["geometry"]["location"]["lng"]
-        return "{},{}".format(lat, lng)
+        return f"{lat},{lng}"
 
 
 # handle geocoding, either from local cache or from one of defined geocoding functions that call APIs
@@ -77,13 +77,13 @@ def geocode(address, geocode_function=geocode_nominatim, use_cache=True):
     global geocode_cache, requests_count
 
     if use_cache and address in geocode_cache and pd.notnull(geocode_cache[address]):
-        log.info('retrieving lat-long from cache for place "{}"'.format(address))
+        log.info(f'retrieving lat-long from cache for place "{address}"')
         return geocode_cache[address]
     else:
         requests_count += 1
         latlng = geocode_function(address)
         geocode_cache[address] = latlng
-        log.info('stored lat-long in cache for place "{}"'.format(address))
+        log.info(f'stored lat-long in cache for place "{address}"')
 
         if requests_count % cache_save_frequency == 0:
             save_cache_to_disk(geocode_cache, geocode_cache_filename)
@@ -112,7 +112,7 @@ def get_country_if_more_detail(address):
 def save_cache_to_disk(cache, filename):
     with open(filename, "w", encoding="utf-8") as cache_file:
         cache_file.write(json.dumps(cache))
-    log.info("saved {:,} cached items to {}".format(len(cache.keys()), filename))
+    log.info(f"saved {len(cache.keys()):,} cached items to {filename}")
 
 
 # how far apart are the lat-longs returned from Google and Nominatim for Brixton?
@@ -120,13 +120,13 @@ address = "Brixton, London, England, United Kingdom"
 latlng_google = geocode(address, geocode_google, use_cache=False)
 latlng_nominatim = geocode(address, geocode_nominatim, use_cache=False)
 
-print("{} google".format(latlng_google))
-print("{} nominatim".format(latlng_nominatim))
-print("{:.1f} meters apart".format(great_circle(latlng_google, latlng_nominatim).m))
+print(f"{latlng_google} google")
+print(f"{latlng_nominatim} nominatim")
+print(f"{great_circle(latlng_google, latlng_nominatim).m:.1f} meters apart")
 
 # load the dataset
 artists = pd.read_csv(input_filename, encoding="utf-8")
-print("{:,} total artists".format(len(artists)))
+print(f"{len(artists):,} total artists")
 
 # clean place_full to remove anything in parentheses or brackets and change empty strings to nulls
 artists["place_full"] = artists["place_full"].map(clean_place_full)
@@ -134,16 +134,16 @@ artists.loc[artists["place_full"] == "", "place_full"] = None
 
 # drop nulls and get the unique set of places
 addresses = pd.Series(artists["place_full"].dropna().sort_values().unique())
-print("{:,} unique places".format(len(addresses)))
+print(f"{len(addresses):,} unique places")
 
 # only keep places that are just countries if that country does not exist with city or state elsewhere in list
 if ignore_country_if_more_detail:
     countries_with_more_detail = pd.Series(
         addresses.map(get_country_if_more_detail).dropna().sort_values().unique()
     )
-    print("{:,} countries with more detail".format(len(countries_with_more_detail)))
+    print(f"{len(countries_with_more_detail):,} countries with more detail")
     addresses_to_geocode = addresses[~addresses.isin(countries_with_more_detail)]
-    print("{:,} unique addresses to geocode".format(len(addresses_to_geocode)))
+    print(f"{len(addresses_to_geocode):,} unique addresses to geocode")
 else:
     addresses_to_geocode = addresses
 
@@ -166,7 +166,7 @@ print(
 
 # which addresses failed to geocode successfully?
 addresses_to_geocode = [key for key in latlng_dict if latlng_dict[key] is None]
-print("{} addresses still lack lat-long".format(len(addresses_to_geocode)))
+print(f"{len(addresses_to_geocode)} addresses still lack lat-long")
 
 # now geocode (with google) each address that failed
 start_time = time.time()

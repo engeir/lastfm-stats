@@ -100,7 +100,7 @@ def get_scrobbles(
     if pages > 0:
         total_pages = min([total_pages, pages])
 
-    print("{} total pages to retrieve".format(total_pages))
+    print(f"{total_pages} total pages to retrieve")
 
     # request each page of data one at a time
     for page in range(1, int(total_pages) + 1, 1):
@@ -143,5 +143,5 @@ scrobbles = get_scrobbles(pages=0)
 
 # save the dataset
 scrobbles.to_csv("data/lastfm_scrobbles.csv", index=None, encoding="utf-8")
-print("{:,} total rows".format(len(scrobbles)))
+print(f"{len(scrobbles):,} total rows")
 scrobbles.head()

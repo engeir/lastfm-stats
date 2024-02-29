@@ -130,57 +130,57 @@ def now_playing() -> rx.Component:
         ),
         rx.cond(
             NowPlayingState.complete,
-            rx.heading(NowPlayingState.now_playing, color="purple", size="md"),
+            rx.chakra.heading(NowPlayingState.now_playing, color="purple", size="md"),
         ),
         rx.cond(
             NowPlayingState.playing,
-            rx.hstack(
+            rx.chakra.hstack(
                 rx.image(src=NowPlayingState.album_cover),
                 # https://reflex.dev/docs/library/chakra/media/icon/
-                rx.list(
-                    rx.list_item(
-                        rx.icon(tag="time", color=list_item_color),
+                rx.chakra.list(
+                    rx.chakra.list_item(
+                        rx.chakra.icon(tag="time", color=list_item_color),
                         " It is " + NowPlayingState.duration + " long",
                     ),
-                    rx.list_item(
-                        rx.icon(tag="repeat", color=list_item_color),
+                    rx.chakra.list_item(
+                        rx.chakra.icon(tag="repeat", color=list_item_color),
                         " I have listened to this track "
                         + NowPlayingState.playcount
                         + " times :)",
                     ),
-                    rx.list_item(
-                        rx.icon(tag="repeat", color=list_item_color),
+                    rx.chakra.list_item(
+                        rx.chakra.icon(tag="repeat", color=list_item_color),
                         " I have listened to the album "
                         + NowPlayingState.album
                         + " "
                         + NowPlayingState.album_playcount
                         + " times :)",
                     ),
-                    rx.list_item(
-                        rx.icon(tag="repeat", color=list_item_color),
+                    rx.chakra.list_item(
+                        rx.chakra.icon(tag="repeat", color=list_item_color),
                         " I have listened to "
                         + NowPlayingState.artist
                         + " "
                         + NowPlayingState.artist_playcount
                         + " times :)",
                     ),
-                    rx.list_item(
-                        rx.icon(tag="star", color=list_item_color),
+                    rx.chakra.list_item(
+                        rx.chakra.icon(tag="star", color=list_item_color),
                         " Their top 5 songs are " + NowPlayingState.artist_top_tracs,
                     ),
-                    rx.list_item(
-                        rx.icon(tag="sun", color=list_item_color),
+                    rx.chakra.list_item(
+                        rx.chakra.icon(tag="sun", color=list_item_color),
                         " Their top 5 albums are " + NowPlayingState.artist_top_albums,
                     ),
-                    rx.list_item(
-                        rx.icon(tag="view", color=list_item_color),
+                    rx.chakra.list_item(
+                        rx.chakra.icon(tag="view", color=list_item_color),
                         " If you enjoy listening to "
                         + NowPlayingState.artist
                         + ", here are five similar artists! "
                         + NowPlayingState.artist_similar,
                     ),
-                    rx.list_item(
-                        rx.icon(tag="lock", color=list_item_color),
+                    rx.chakra.list_item(
+                        rx.chakra.icon(tag="lock", color=list_item_color),
                         " It's MusicBrainz ID is " + NowPlayingState.info,
                     ),
                     width="100%",

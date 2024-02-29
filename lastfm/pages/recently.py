@@ -30,8 +30,10 @@ class Recently:
         else:
             return "I'm not listening to music atm :/"
 
+
 class RecentState(rx.State):
     recent_tracks = ""
+
 
 @template(route="/recently", title="Recently")
 def recently() -> rx.Component:

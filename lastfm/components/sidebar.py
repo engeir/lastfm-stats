@@ -1,14 +1,15 @@
 """Sidebar component for the app."""
 
-from lastfm import styles
-
 import reflex as rx
+
+from lastfm import styles
 
 
 def sidebar_header() -> rx.Component:
     """Sidebar header.
 
-    Returns:
+    Returns
+    -------
         The sidebar header component.
     """
     return rx.hstack(
@@ -44,7 +45,8 @@ def sidebar_header() -> rx.Component:
 def sidebar_footer() -> rx.Component:
     """Sidebar footer.
 
-    Returns:
+    Returns
+    -------
         The sidebar footer component.
     """
     return rx.hstack(
@@ -71,7 +73,8 @@ def sidebar_item(text: str, icon: str, url: str) -> rx.Component:
         icon: The icon of the item.
         url: The URL of the item.
 
-    Returns:
+    Returns
+    -------
         rx.Component: The sidebar item component.
     """
     # Whether the item is active.
@@ -112,7 +115,8 @@ def sidebar_item(text: str, icon: str, url: str) -> rx.Component:
 def sidebar() -> rx.Component:
     """The sidebar.
 
-    Returns:
+    Returns
+    -------
         The sidebar component.
     """
     # Get all the decorated pages and add them to the sidebar.

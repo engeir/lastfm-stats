@@ -1,14 +1,15 @@
 """The dashboard page."""
-from lastfm.templates import template
-
 import reflex as rx
+
+from lastfm.templates import template
 
 
 @template(route="/dashboard", title="Dashboard")
 def dashboard() -> rx.Component:
     """The dashboard page.
 
-    Returns:
+    Returns
+    -------
         The UI for the dashboard page.
     """
     return rx.vstack(

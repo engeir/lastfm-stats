@@ -7,7 +7,6 @@ import time
 import pandas as pd
 import requests
 
-
 pause_standard = 1.1
 pause_exceeded_rate = 2
 
@@ -40,7 +39,7 @@ artist_cache = (
 log = lg.getLogger("mb")
 if not getattr(log, "handler_set", None):
     todays_date = dt.datetime.today().strftime("%Y_%m_%d_%H_%M_%S")
-    log_filename = "logs/mb_{}.log".format(todays_date)
+    log_filename = f"logs/mb_{todays_date}.log"
     handler = lg.FileHandler(log_filename, encoding="utf-8")
     formatter = lg.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s")
     handler.setFormatter(formatter)
@@ -54,11 +53,11 @@ def make_request(url, headers=headers, attempt_count=1):
     global pause_standard
 
     time.sleep(pause_standard)
-    log.info("request: {}".format(url))
+    log.info(f"request: {url}")
     try:
         response = requests.get(url, headers=headers)
     except Exception as e:
-        log.error("requests.get failed: {} {} {}".format(type(e), e, response.json()))
+        log.error(f"requests.get failed: {type(e)} {e} {response.json()}")
 
     if response.status_code == 200:  # if status OK
         return {"status_code": response.status_code, "json": response.json()}
@@ -74,7 +73,7 @@ def make_request(url, headers=headers, attempt_count=1):
                         pause_standard
                     )
                 )
-                log.warning("details: {}".format(response.json()))
+                log.warning(f"details: {response.json()}")
                 time.sleep(pause_exceeded_rate)
         except:
             pass
@@ -89,9 +88,7 @@ def make_request(url, headers=headers, attempt_count=1):
 
     else:  # if other status code, display info and return None for caller to handle
         log.error(
-            "make_request failed: status_code {} {}".format(
-                response.status_code, response.json()
-            )
+            f"make_request failed: status_code {response.status_code} {response.json()}"
         )
         return None
 
@@ -105,7 +102,7 @@ def get_artist_id_by_name(name):
             artist_id = result["artists"][0]["id"]
             return artist_id
     except:
-        log.error("get_artist_id_by_name error: {}".format(response))
+        log.error(f"get_artist_id_by_name error: {response}")
 
 
 # parse the details of an artist from the API response
@@ -162,7 +159,7 @@ def extract_artist_details_from_response(response):
             return artist_details
 
     except:
-        log.error("get_artist_by_id error: {}".format(response))
+        log.error(f"get_artist_by_id error: {response}")
 
 
 # get an artist object from the musicbrainz api by the musicbrainz artist id
@@ -172,7 +169,7 @@ def get_artist_by_id(artist_id):
     # first, get the artist details either from the cache or from the API
     if artist_id in artist_cache:
         # if we've looked up this ID before, get it from the cache
-        log.info("retrieving artist details from cache for ID {}".format(artist_id))
+        log.info(f"retrieving artist details from cache for ID {artist_id}")
         artist_details = artist_cache[artist_id]
     else:
         # if we haven't looked up this ID before, look it up from API now
@@ -181,7 +178,7 @@ def get_artist_by_id(artist_id):
 
         # add this artist to the cache so we don't have to ask the API for it again
         artist_cache[artist_id] = artist_details
-        log.info("adding artist details to cache for ID {}".format(artist_id))
+        log.info(f"adding artist details to cache for ID {artist_id}")
 
         # save the artist cache to disk once per every cache_save_frequency API requests
         artist_requests_count += 1
@@ -218,25 +215,21 @@ def make_artists_df(artist_ids, row_labels=None, df=None, csv_save_frequency=100
         df = pd.DataFrame(columns=cols)
 
     start_time = time.time()
-    for artist_id, n in zip(artist_ids, row_labels):
+    for artist_id, n in zip(artist_ids, row_labels, strict=False):
         try:
             # get the artist info object
             artist = get_artist_by_id(artist_id)
 
             # create (or update) a df row containing the data from this artist object
             df.loc[n] = [artist[col] for col in cols]
-            log.info(
-                "successfully got artist details #{:,}: artist_id={}".format(
-                    n, artist_id
-                )
-            )
+            log.info(f"successfully got artist details #{n:,}: artist_id={artist_id}")
 
             # save csv dataset to disk once per every csv_save_frequency rows
             if n % csv_save_frequency == 0:
                 df.to_csv(csv_filename, index=False, encoding="utf-8")
 
         except Exception as e:
-            log.error("row #{} failed: {}".format(n, e))
+            log.error(f"row #{n} failed: {e}")
             pass
 
     df.to_csv(csv_filename, index=False, encoding="utf-8")
@@ -264,10 +257,10 @@ def extract_area_details_from_response(response):
                     area_details["parent_id"] = relation["area"]["id"]
                     area_details["parent_name"] = relation["area"]["name"]
         else:
-            log.warning("area returned no relations: {}".format(result))
+            log.warning(f"area returned no relations: {result}")
         return area_details
     except Exception:
-        log.error("extract_area_details_from_response failed: {}".format(response))
+        log.error(f"extract_area_details_from_response failed: {response}")
         return None
 
 
@@ -278,7 +271,7 @@ def get_area(area_id, full_area_str=""):
     # first, get the area details either from the cache or from the API
     if area_id in area_cache:
         # if we've looked up this ID before, get it from the cache
-        log.info("retrieving area details from cache for ID {}".format(area_id))
+        log.info(f"retrieving area details from cache for ID {area_id}")
         area_details = area_cache[area_id]
     else:
         # if we haven't looked up this ID before, look it up from API now
@@ -287,7 +280,7 @@ def get_area(area_id, full_area_str=""):
 
         # add this area to the cache so we don't have to ask the API for it again
         area_cache[area_id] = area_details
-        log.info("adding area details to cache for ID {}".format(area_id))
+        log.info(f"adding area details to cache for ID {area_id}")
 
         # save the area cache to disk once per every cache_save_frequency API requests
         area_requests_count += 1
@@ -308,7 +301,7 @@ def get_area(area_id, full_area_str=""):
             # if no parents exist, we're done
             return None, full_area_str
     except Exception as e:
-        log.error("get_area error: {}".format(e))
+        log.error(f"get_area error: {e}")
         return None, full_area_str
 
 
@@ -331,7 +324,9 @@ def get_place_full(unique_place_ids):
     print(message)
 
     place_ids_names = {}
-    for place_id, n in zip(unique_place_ids, range(len(unique_place_ids))):
+    for place_id, n in zip(
+        unique_place_ids, range(len(unique_place_ids)), strict=False
+    ):
         try:
             place_name = get_place_full_name_by_area_id(place_id)
         except:
@@ -365,7 +360,7 @@ def get_place_full_from_dict(place_id):
 def save_cache_to_disk(cache, filename):
     with open(filename, "w", encoding="utf-8") as cache_file:
         cache_file.write(json.dumps(cache))
-    log.info("saved {:,} cached items to {}".format(len(cache.keys()), filename))
+    log.info(f"saved {len(cache.keys()):,} cached items to {filename}")
 
 
 log.info("musicbrainz downloader script started")
@@ -373,7 +368,7 @@ log.info("musicbrainz downloader script started")
 # load the artist IDs from the lastfm scrobble history data set
 scrobbles = pd.read_csv("data/lastfm_scrobbles.csv", encoding="utf-8")
 artist_ids = scrobbles["artist_mbid"].dropna().unique()  # [1000:1005]
-message = "there are {:,} unique artists to get details for".format(len(artist_ids))
+message = f"there are {len(artist_ids):,} unique artists to get details for"
 log.info(message)
 print(message)
 
@@ -389,7 +384,7 @@ missing_row_labels = [
 row_labels_to_retry = sorted(missing_row_labels)
 artist_ids_to_retry = [artist_ids[label] for label in row_labels_to_retry]
 
-message = "{} artists to retry".format(len(artist_ids_to_retry))
+message = f"{len(artist_ids_to_retry)} artists to retry"
 log.info(message)
 print(message)
 
@@ -421,7 +416,7 @@ missing_row_labels = [
     label for label in range(len(artist_ids)) if label not in df.index
 ]
 
-message = "{} row labels are missing in the df".format(len(missing_row_labels))
+message = f"{len(missing_row_labels)} row labels are missing in the df"
 log.info(message)
 print(message)
 message = "{} rows are missing place_full but have place_id".format(

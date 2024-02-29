@@ -19,16 +19,13 @@ def winamp_now_playing():
     if _platform != "win32":
         return None
 
-    else:
-        # Is Winamp playing?
-
-        if w.getPlayingStatus() == "playing":
-            # Is Winamp playing BBC Radio?
-            now_playing = w.getCurrentTrackName()
-            if "bbc" not in now_playing.lower():
-                print("Winamp:      Not BBC")
-            else:
-                station = normalise_station(now_playing)
+    elif w.getPlayingStatus() == "playing":
+        # Is Winamp playing BBC Radio?
+        now_playing = w.getCurrentTrackName()
+        if "bbc" not in now_playing.lower():
+            print("Winamp:      Not BBC")
+        else:
+            station = normalise_station(now_playing)
     return station
 
 

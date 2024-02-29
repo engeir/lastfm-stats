@@ -1,12 +1,19 @@
-[tools]
-python = { version = "3.11", virtualenv = ".venv" }
-
 [tasks.run]
-description = "Run the app (reflex)"
+description = "Run the reflex app locally"
 run = "reflex run"
 alias = "r"
 
 [tasks.install]
 description = "Install all dependencies"
-run = "poetry install"
+run = "rye sync"
 alias = "i"
+
+[tasks.build]
+description = "Build the docker container"
+run = "docker build -t reflex-project:latest ."
+alias = "b"
+
+[tasks.start]
+description = "Start the docker container"
+run = "docker run -d -p 3000:3000 -p 8000:8000 --name lastfm reflex-project:latest"
+alias = "s"
