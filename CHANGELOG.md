@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/engeir/lastfm-stats/compare/v0.3.0...v0.3.1) (2024-03-14)
+
+
+### Continuous Integration
+
+* **github:** publish to github on every push to main ([5417153](https://github.com/engeir/lastfm-stats/commit/5417153e2bdf3957d4b202b37a6c3bbc0c1c09d8))
+
 ## [0.3.0](https://github.com/engeir/lastfm-stats/compare/v0.2.0...v0.3.0) (2024-03-14)
 
 
