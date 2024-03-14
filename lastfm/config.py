@@ -5,8 +5,10 @@ import subprocess
 import pylast
 import pendulum
 import os
+from dotenv import load_dotenv
 
-# my_var = os.environ.get('MY_VAR')
+load_dotenv()
+
 API_KEY = os.environ.get("API_KEY")
 API_SECRET = os.environ.get("API_SECRET")
 USER_NAME = os.environ.get("USER_NAME")
@@ -21,3 +23,11 @@ GENIUS_TOKEN = os.environ.get("GENIUS_TOKEN")
 # GENIUS_TOKEN = subprocess.check_output(["pass", "Genius/Client-access-token"]).strip().decode()
 
 TIME_ZONE = pendulum.timezone("Europe/Oslo")
+
+if __name__ == "__main__":
+    print(API_KEY)
+    print(API_SECRET)
+    print(USER_NAME)
+    print(PASSWORD)
+    print(PASSWORD_HASH)
+    print(GENIUS_TOKEN)

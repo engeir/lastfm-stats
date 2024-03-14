@@ -1,4 +1,4 @@
-"""Welcome to Reflex!."""
+"""Welcome to Reflex!"""
 
 import reflex as rx
 
