@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.0](https://github.com/engeir/lastfm-stats/compare/v0.2.0...v0.3.0) (2024-03-14)
+
+
+### Features
+
+* **docker:** refactor so that docker build succeeds ([1623051](https://github.com/engeir/lastfm-stats/commit/162305143d7c0526bca5d41df96f943f2b25d2d6))
+
+
+### Miscellaneous
+
+* start on a recently page and improve now playing ([e488d57](https://github.com/engeir/lastfm-stats/commit/e488d57039df6d8e42fc5e5ad48e61a2df797814))
+
+
+### Continuous Integration
+
+* **github:** set up docker publish workflow ([c95850f](https://github.com/engeir/lastfm-stats/commit/c95850f7c270761660b71106bc94e7e43a180c01))
+
 ## [0.2.0](https://github.com/engeir/lastfm-stats/compare/v0.1.0...v0.2.0) (2024-01-30)
 
 
