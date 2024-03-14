@@ -1,6 +1,6 @@
 [project]
 name = "lastfm"
-version = "0.3.0"
+version = "0.3.1"
 description = "Simple Last.fm app"
 authors = [{ name = "Eirik Rolland Enger <engeir@pm.me>", email = "engeir@pm.me" }]
 license = "MIT"
