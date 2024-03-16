@@ -14,12 +14,16 @@ alias = "i"
 
 [tasks.build]
 description = "Build the docker container"
-run = "docker build -t lastfm-stats:latest ."
+run = "docker build -t ghcr.io/engeir/lastfm-stats:latest ."
 alias = "b"
 depends = ["install"]
 
 [tasks.start]
 description = "Start the docker container"
-run = "docker run -it --rm -p 3000:3000 -p 8000:8000 --name lastfm lastfm-stats:latest"
-# run = "docker run -d -p 3000:3000 -p 8000:8000 --name lastfm reflex-lastfm:latest"
+run = "docker run --env-file .env -it --rm -p 3000:3000 -p 8000:8000 --detach --name lastfm-stats ghcr.io/engeir/lastfm-stats:latest"
 alias = "s"
+
+[tasks.push]
+description = "Push image to GitHub Container Registry"
+run = "docker push ghcr.io/engeir/lastfm-stats:latest"
+alias = "p"
