@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.5](https://github.com/engeir/lastfm-stats/compare/v0.3.4...v0.3.5) (2024-03-16)
+
+
+### Continuous Integration
+
+* **fix:** latest tag ([6e7e40c](https://github.com/engeir/lastfm-stats/commit/6e7e40c5b95e433b430dc019ac07c09bc1df9288))
+
 ## [0.3.4](https://github.com/engeir/lastfm-stats/compare/v0.3.3...v0.3.4) (2024-03-16)
 
 
