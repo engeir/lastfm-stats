@@ -6,7 +6,7 @@
 
 ```bash
 docker pull ghcr.io/engeir/lastfm-stats
-docker run --env-file .env -it --rm -p 3000:3000 -p 8000:8000 --detach --name lastfm-stats ghcr.io/engeir/lastfm-stats:v0.3.2
+docker run --env-file .env -it --rm -p 3000:3000 -p 8000:8000 --detach --name lastfm-stats ghcr.io/engeir/lastfm-stats:v0.3.3
 ```
 
 <!-- x-release-please-end -->
