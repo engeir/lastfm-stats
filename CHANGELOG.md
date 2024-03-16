@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.2](https://github.com/engeir/lastfm-stats/compare/v0.3.1...v0.3.2) (2024-03-14)
+
+
+### Build System
+
+* **deps:** bump fastapi from 0.96.1 to 0.109.1 ([#6](https://github.com/engeir/lastfm-stats/issues/6)) ([483e09a](https://github.com/engeir/lastfm-stats/commit/483e09adb87744f9612a30ec12d829ea43994b8a))
+* **deps:** bump python-multipart from 0.0.5 to 0.0.7 ([#7](https://github.com/engeir/lastfm-stats/issues/7)) ([84d9403](https://github.com/engeir/lastfm-stats/commit/84d9403d6c47a3e949926b8178e25ea9732c6e72))
+* **deps:** bump starlette from 0.27.0 to 0.36.2 ([#5](https://github.com/engeir/lastfm-stats/issues/5)) ([92271ca](https://github.com/engeir/lastfm-stats/commit/92271caf36819710523748d309c320e107f21240))
+
+
+### Documentation
+
+* remove auto generated reflex docs in README ([69be675](https://github.com/engeir/lastfm-stats/commit/69be675e02392b44d527534ea9793a7c4e19a2c6))
+
 ## [0.3.1](https://github.com/engeir/lastfm-stats/compare/v0.3.0...v0.3.1) (2024-03-14)
 
 
