@@ -13,9 +13,6 @@ import pylast
 
 from lastfm.config import API_KEY, API_SECRET
 
-# API_KEY = "8fe0d07b4879e9cd6f8d78d86a8f447c"
-# API_SECRET = "debb11ad5da3be07d06fddd8fe95cc42"
-
 SESSION_KEY_FILE = os.path.join(os.path.expanduser("~"), ".session_key")
 
 last_output = None
