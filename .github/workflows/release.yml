@@ -31,6 +31,6 @@ jobs:
         run: |
           username: ${{ github.actor }}
           password: ${{ secrets.DOCKER_GHCR }}
-          docker login --username ${{ github.actor }} --password ${{ secrets.DOCKER_GHCR }} ghcr.io
+          docker login ghcr.io -u engeir -p ${{ secrets.DOCKER_GHCR }}
           docker build -t ghcr.io/engeir/lastfm-stats:${{ steps.release.outputs.tag_name }} .
           docker push ghcr.io/engeir/lastfm-stats:${{ steps.release.outputs.tag_name }}
