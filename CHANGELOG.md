@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.6](https://github.com/engeir/lastfm-stats/compare/v0.3.5...v0.3.6) (2024-03-16)
+
+
+### Continuous Integration
+
+* **fix:** add permissions ([78cff48](https://github.com/engeir/lastfm-stats/commit/78cff48b31f540945213e88200dd558f58d88d8a))
+* **fix:** fix workflow file ([4d5ed8a](https://github.com/engeir/lastfm-stats/commit/4d5ed8a700592ae2ef0a1e08087ae747bfd6311a))
+
 ## [0.3.5](https://github.com/engeir/lastfm-stats/compare/v0.3.4...v0.3.5) (2024-03-16)
 
 
