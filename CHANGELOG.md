@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.3](https://github.com/engeir/lastfm-stats/compare/v0.3.2...v0.3.3) (2024-03-16)
+
+
+### Continuous Integration
+
+* **fix:** use custom PAT secret for better control over access ([d2e61e9](https://github.com/engeir/lastfm-stats/commit/d2e61e9566954e78c3144c2251ab5fe35e8db4bc))
+* **github:** integrate docker images with releases ([c3b7ee7](https://github.com/engeir/lastfm-stats/commit/c3b7ee7614532fe071c8d7b1752fdff7c298fb23))
+
 ## [0.3.2](https://github.com/engeir/lastfm-stats/compare/v0.3.1...v0.3.2) (2024-03-14)
 
 
