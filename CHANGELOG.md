@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.7](https://github.com/engeir/lastfm-stats/compare/v0.3.6...v0.3.7) (2024-03-16)
+
+
+### Continuous Integration
+
+* **fix:** idiot ([04d8031](https://github.com/engeir/lastfm-stats/commit/04d8031a858b3fe71a3bdd0415a0c95edc6e2fed))
+
 ## [0.3.6](https://github.com/engeir/lastfm-stats/compare/v0.3.5...v0.3.6) (2024-03-16)
 
 
