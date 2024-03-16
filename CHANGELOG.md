@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4](https://github.com/engeir/lastfm-stats/compare/v0.3.3...v0.3.4) (2024-03-16)
+
+
+### Continuous Integration
+
+* **fix:** try fixing docker build ([8abd798](https://github.com/engeir/lastfm-stats/commit/8abd798c649a9830f61dc4e1c1e9d0a68b37cf17))
+
 ## [0.3.3](https://github.com/engeir/lastfm-stats/compare/v0.3.2...v0.3.3) (2024-03-16)
 
 
