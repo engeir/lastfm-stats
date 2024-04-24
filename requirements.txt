@@ -66,7 +66,7 @@ geopy==2.4.1
     # via lastfm
 greenlet==3.0.3
     # via sqlalchemy
-gunicorn==20.1.0
+gunicorn==22.0.0
     # via reflex
 h11==0.14.0
     # via httpcore
