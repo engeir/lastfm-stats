@@ -134,7 +134,7 @@ pendulum==3.0.0
     # via lastfm
 pexpect==4.9.0
     # via ipython
-pillow==10.2.0
+pillow==10.3.0
     # via lastfm
     # via matplotlib
 pipdeptree==2.16.1
