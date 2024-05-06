@@ -227,7 +227,7 @@ sqlmodel==0.0.14
     # via reflex
 stack-data==0.6.3
     # via ipython
-starlette==0.27.0
+starlette==0.36.2
     # via fastapi
     # via starlette-admin
 starlette-admin==0.9.0
