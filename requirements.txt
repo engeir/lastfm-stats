@@ -54,7 +54,7 @@ docopt==0.6.2
     # via pipreqs
 executing==2.0.1
     # via stack-data
-fastapi==0.96.1
+fastapi==0.109.1
     # via reflex
 fontawesomefree==6.5.1
     # via pywaffle
