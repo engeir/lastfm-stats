@@ -78,7 +78,7 @@ httpx==0.25.2
     # via pylast
     # via reflex
     # via reflex-hosting-cli
-idna==3.6
+idna==3.7
     # via anyio
     # via httpx
     # via requests
