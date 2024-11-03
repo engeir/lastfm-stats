@@ -2,51 +2,54 @@
 name = "lastfm"
 version = "0.3.7"
 description = "Simple Last.fm app"
-authors = [{ name = "Eirik Rolland Enger <engeir@pm.me>", email = "engeir@pm.me" }]
+authors = [
+  { name = "Eirik Rolland Enger <engeir@pm.me>", email = "engeir@pm.me" },
+]
 license = "MIT"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "basemap>=1.4.1",
-    "geopy>=2.4.1",
-    "ipython>=8.22.1",
-    "lyricsgenius>=3.0.1",
-    "matplotlib>=3.8.3",
-    "pandas>=2.2.1",
-    "pendulum>=3.0.0",
-    "pillow>=10.2.0",
-    "plastik>=0.5.0",
-    "pylast>=5.2.0",
-    "pytz>=2024.1",
-    "requests>=2.31.0",
-    "termcolor>=2.4.0",
-    "reflex>=0.4.4",
-    "python-dotenv>=1.0.1",
+  "basemap>=1.4.1",
+  "geopy>=2.4.1",
+  "ipython>=8.22.1",
+  "lyricsgenius>=3.0.1",
+  "matplotlib>=3.8.3",
+  "pandas>=2.2.1",
+  "pendulum>=3.0.0",
+  "pillow>=10.2.0",
+  "plastik>=0.5.0",
+  "pylast>=5.2.0",
+  "pytz>=2024.1",
+  "requests>=2.31.0",
+  "termcolor>=2.4.0",
+  "reflex>=0.4.4",
+  "python-dotenv>=1.0.1",
+  "reflex-chakra>=0.6.0",
+  "plotly>=5.24.1",
+  "types-requests>=2.32.0.20240914",
+  "pyqt6>=6.7.1",
 ]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.rye]
+[tool.uv]
 managed = true
 dev-dependencies = [
-    "mypy>=1.8.0",
-    "pre-commit>=3.6.2",
-    "pre-commit-hooks>=4.5.0",
-    "pydoclint>=0.4.1",
-    "pydocstringformatter>=0.7.3",
-    "pytest>=8.0.1",
-    "ruff>=0.2.2",
-    "types-decorator>=5.1.8.20240106",
-    "types-pytz>=2024.1.0.20240203",
-    "types-requests>=2.31.0.20240218",
-    "types-six>=1.16.21.20240106",
-    "xdoctest>=1.1.3",
+  "mypy>=1.8.0",
+  "pre-commit>=3.6.2",
+  "pre-commit-hooks>=4.5.0",
+  "pydoclint>=0.4.1",
+  "pydocstringformatter>=0.7.3",
+  "pytest>=8.0.1",
+  "ruff>=0.2.2",
+  "types-decorator>=5.1.8.20240106",
+  "types-pytz>=2024.1.0.20240203",
+  "types-requests>=2.31.0.20240218",
+  "types-six>=1.16.21.20240106",
+  "xdoctest>=1.1.3",
 ]
-
-[tool.rye.scripts]
-dev = { cmd = "reflex run" }
 
 [tool.mypy]
 files = ["lastfm", "tests"]
@@ -168,9 +171,9 @@ line_length = 88
 profile = "black"
 combine_as_imports = true
 
-[tool.lint.pydocstringformatter]
+[tool.pydocstringformatter]
 write = true
 strip-whitespaces = true
-split-summary-body = false
-numpydoc-section-hyphen-length = false
+split-summary-body = true
+numpydoc-section-hyphen-length = true
 style = ["pep257", "numpydoc"]

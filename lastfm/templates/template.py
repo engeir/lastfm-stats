@@ -5,9 +5,11 @@ from __future__ import annotations
 from collections.abc import Callable
 
 import reflex as rx
+import reflex_chakra as rc
+from reflex.style import color_mode, set_color_mode
 
-from lastfm import styles
-from lastfm.components.sidebar import sidebar
+from .. import styles
+from ..components.sidebar import sidebar
 
 # Meta tags for the app.
 default_meta = [
@@ -18,8 +20,29 @@ default_meta = [
 ]
 
 
+def dark_mode_toggle() -> rx.Component:
+    return rx.segmented_control.root(
+        rx.segmented_control.item(
+            rx.icon(tag="monitor", size=20),
+            value="system",
+        ),
+        rx.segmented_control.item(
+            rx.icon(tag="sun", size=20),
+            value="light",
+        ),
+        rx.segmented_control.item(
+            rx.icon(tag="moon", size=20),
+            value="dark",
+        ),
+        on_change=set_color_mode,
+        variant="classic",
+        radius="large",
+        value=color_mode,
+    )
+
+
 def menu_button() -> rx.Component:
-    """The menu button on the top right of the page.
+    """Create a menu button on the top right of the page.
 
     Returns
     -------
@@ -28,21 +51,21 @@ def menu_button() -> rx.Component:
     from reflex.page import get_decorated_pages
 
     return rx.box(
-        rx.chakra.menu(
-            rx.button(
-                rx.icon(tag="moon"),
-                on_click=rx.toggle_color_mode,
-            ),
-            rx.chakra.menu_button(
-                rx.chakra.icon(
+        rc.menu(
+            # rx.button(
+            #     rx.icon(tag="moon"),
+            #     on_click=rx.toggle_color_mode,
+            # ),
+            rc.menu_button(
+                rc.icon(
                     tag="hamburger",
                     size="4em",
                     color=styles.text_color,
                 ),
             ),
-            rx.chakra.menu_list(
+            rc.menu_list(
                 *[
-                    rx.chakra.menu_item(
+                    rc.menu_item(
                         rx.link(
                             page["title"],
                             href=page["route"],
@@ -51,18 +74,18 @@ def menu_button() -> rx.Component:
                     )
                     for page in get_decorated_pages()
                 ],
-                rx.chakra.menu_divider(),
-                rx.chakra.menu_item(
+                rc.menu_divider(),
+                rc.menu_item(
                     rx.link("About", href="https://github.com/reflex-dev", width="100%")
                 ),
-                rx.chakra.menu_item(
+                rc.menu_item(
                     rx.link("Contact", href="mailto:founders@=reflex.dev", width="100%")
                 ),
             ),
         ),
         position="fixed",
         right="1.5em",
-        top="1.5em",
+        top="2.5em",
         z_index="500",
     )
 
@@ -125,6 +148,7 @@ def template(
                     **styles.template_page_style,
                 ),
                 menu_button(),
+                dark_mode_toggle(),
                 align_items="flex-start",
                 transition="left 0.5s, width 0.5s",
                 position="relative",

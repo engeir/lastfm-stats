@@ -1,14 +1,14 @@
 [tasks.run]
 description = "Run the reflex app locally"
-run = "reflex run"
+run = "uv run reflex run"
 alias = "r"
 
 [tasks.install]
 description = "Install all dependencies"
 run = """
 #!/bin/bash
-rye sync
-cp requirements.lock requirements.txt
+uv sync
+uv export --no-dev --no-emit-project >requirements.txt
 """
 alias = "i"
 

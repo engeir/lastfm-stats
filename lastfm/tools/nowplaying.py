@@ -1,4 +1,5 @@
-"""
+"""Print the currently playing track according to last.fm.
+
 Authors: Amr Hassan <amr.hassan@gmail.com>
          and hugovk <https://github.com/hugovk>
 # Hacked from https://github.com/hugovk/bbcscrobbler
@@ -11,7 +12,7 @@ from sys import platform as _platform
 
 import pylast
 
-from lastfm.config import API_KEY, API_SECRET
+from .config import API_KEY, API_SECRET
 
 SESSION_KEY_FILE = os.path.join(os.path.expanduser("~"), ".session_key")
 

@@ -69,9 +69,7 @@ def make_request(url, headers=headers, attempt_count=1):
             if "exceeding the allowable rate limit" in response.json()["error"]:
                 # pause_standard = pause_standard + 0.1
                 log.warning(
-                    "exceeded allowable rate limit, pause_standard is now {} seconds".format(
-                        pause_standard
-                    )
+                    f"exceeded allowable rate limit, pause_standard is now {pause_standard} seconds"
                 )
                 log.warning(f"details: {response.json()}")
                 time.sleep(pause_exceeded_rate)
@@ -80,9 +78,7 @@ def make_request(url, headers=headers, attempt_count=1):
 
         next_attempt_count = attempt_count + 1
         log.warning(
-            "request failed with status_code 503, so we will try it again with attempt #{}".format(
-                next_attempt_count
-            )
+            f"request failed with status_code 503, so we will try it again with attempt #{next_attempt_count}"
         )
         return make_request(url, attempt_count=next_attempt_count)
 
@@ -234,9 +230,7 @@ def make_artists_df(artist_ids, row_labels=None, df=None, csv_save_frequency=100
 
     df.to_csv(csv_filename, index=False, encoding="utf-8")
     finish_time = time.time()
-    message = "processed {:,} artists in {:,} seconds and saved csv".format(
-        len(artist_ids), round(finish_time - start_time, 2)
-    )
+    message = f"processed {len(artist_ids):,} artists in {round(finish_time - start_time, 2):,} seconds and saved csv"
     log.info(message)
     print(message)
 
@@ -317,9 +311,7 @@ def get_place_full_name_by_area_id(area_id):
 # take a list of place IDs and return a dict linking each to its constructed full name
 def get_place_full(unique_place_ids):
     start_time = time.time()
-    message = "we will attempt to get place full names for {:,} place IDs".format(
-        len(unique_place_ids)
-    )
+    message = f"we will attempt to get place full names for {len(unique_place_ids):,} place IDs"
     log.info(message)
     print(message)
 
@@ -333,16 +325,10 @@ def get_place_full(unique_place_ids):
             place_name = None
         place_ids_names[place_id] = place_name
         log.info(
-            'successfully created place #{:,}: "{}" from place ID "{}"'.format(
-                n + 1, place_name, place_id
-            )
+            f'successfully created place #{n + 1:,}: "{place_name}" from place ID "{place_id}"'
         )
 
-    message = (
-        "finished getting place full names from place IDs in {:.2f} seconds".format(
-            time.time() - start_time
-        )
-    )
+    message = f"finished getting place full names from place IDs in {time.time() - start_time:.2f} seconds"
     log.info(message)
     print(message)
     return place_ids_names
@@ -419,8 +405,8 @@ missing_row_labels = [
 message = f"{len(missing_row_labels)} row labels are missing in the df"
 log.info(message)
 print(message)
-message = "{} rows are missing place_full but have place_id".format(
-    len(rows_missing_place_full)
+message = (
+    f"{len(rows_missing_place_full)} rows are missing place_full but have place_id"
 )
 log.info(message)
 print(message)

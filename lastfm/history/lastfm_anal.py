@@ -9,7 +9,7 @@ import plastik
 import pytz
 from matplotlib import cm
 
-from lastfm.config import TIME_ZONE
+from .config import TIME_ZONE
 
 # define the fonts to use for plots
 family = "DejaVu Sans"
@@ -28,9 +28,7 @@ ticks_font_h = fm.FontProperties(
 
 
 def get_colors(cmap, n, start=0.0, stop=1.0, alpha=1.0, reverse=False):
-    """Return n-length list of rgba colors from the passed colormap name and alpha,
-    limit extent by start/stop values and reverse list order if flag is true
-    """
+    """Return n-length list of rgba colors from the passed colormap name and alpha."""
     colors = [cm.get_cmap(cmap)(x) for x in np.linspace(start, stop, n)]
     colors = [(r, g, b, alpha) for r, g, b, _ in colors]
     return list(reversed(colors)) if reverse else colors

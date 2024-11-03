@@ -3,9 +3,9 @@
 import pylast
 import reflex as rx
 
-from lastfm.config import USER_NAME
-from lastfm.templates import template
-from lastfm.tools.mylast import lastfm_network
+from ..config import USER_NAME
+from ..templates import template
+from ..tools.mylast import lastfm_network
 
 
 class Recently:

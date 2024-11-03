@@ -2,8 +2,8 @@ import sys
 
 import pylast
 
-from lastfm.config import USER_NAME
-from lastfm.tools.mylast import lastfm_network
+from .config import USER_NAME
+from .tools.mylast import lastfm_network
 
 # Loves whatever track is now playing on Last.fm,
 # then prints confirmation of last loved track.

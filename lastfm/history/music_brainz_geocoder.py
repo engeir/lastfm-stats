@@ -154,14 +154,10 @@ for address in addresses_to_geocode:
     latlng_dict[address] = geocode(address, geocode_function=geocode_nominatim)
 
 print(
-    "geocoded {:,} addresses in {:,.2f} seconds".format(
-        len(addresses_to_geocode), int(time.time() - start_time)
-    )
+    f"geocoded {len(addresses_to_geocode):,} addresses in {int(time.time() - start_time):,.2f} seconds"
 )
 print(
-    "received {:,} non-null lat-longs".format(
-        len([key for key in latlng_dict if latlng_dict[key] is not None])
-    )
+    f"received {len([key for key in latlng_dict if latlng_dict[key] is not None]):,} non-null lat-longs"
 )
 
 # which addresses failed to geocode successfully?
@@ -174,14 +170,10 @@ for address in addresses_to_geocode:
     latlng_dict[address] = geocode(address, geocode_function=geocode_google)
 
 print(
-    "geocoded {:,} addresses in {:,.2f} seconds".format(
-        len(addresses_to_geocode), int(time.time() - start_time)
-    )
+    f"geocoded {len(addresses_to_geocode):,} addresses in {int(time.time() - start_time):,.2f} seconds"
 )
 print(
-    "received {:,} non-null lat-longs".format(
-        len([key for key in latlng_dict if latlng_dict[key] is not None])
-    )
+    f"received {len([key for key in latlng_dict if latlng_dict[key] is not None]):,} non-null lat-longs"
 )
 
 

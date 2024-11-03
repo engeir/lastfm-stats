@@ -1,10 +1,9 @@
 """Set global configuration values."""
 
-import subprocess
-
-import pylast
-import pendulum
 import os
+
+import pendulum
+import pylast
 from dotenv import load_dotenv
 
 load_dotenv()

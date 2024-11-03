@@ -2,7 +2,7 @@
 
 import reflex as rx
 
-from lastfm.templates import template
+from ..templates import template
 
 
 @template(route="/settings", title="Settings")

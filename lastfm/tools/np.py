@@ -9,8 +9,8 @@ import time
 import pylast
 from termcolor import colored  # pip install termcolor
 
-from lastfm.config import USER_NAME
-from lastfm.tools.mylast import lastfm_network
+from .config import USER_NAME
+from .tools.mylast import lastfm_network
 
 # Show my now playing song, or that of a given username
 # Prerequisites: mylast.py, pyLast
@@ -37,10 +37,12 @@ def say(thing: str) -> None:
 
 
 def is_track_loved(track: pylast.Track) -> str:
-    """
-    Input: Track
-    If loved, return track string with a heart
-    else return track string
+    """Print a heart with the track if it is marked as loved.
+
+    Parameters
+    ----------
+    input : pylast.Track
+        If loved, return track string with a heart else return track string
     """
     text = f"{track.artist} - {colored(track.title, attrs=['bold'])}"
     try:

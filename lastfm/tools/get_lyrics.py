@@ -1,9 +1,8 @@
 """Get lyrics from Genius."""
 
-
 from lyricsgenius import Genius
 
-from lastfm.config import GENIUS_TOKEN
+from ..config import GENIUS_TOKEN
 
 
 def _setup() -> Genius:

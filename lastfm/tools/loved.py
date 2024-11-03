@@ -1,7 +1,7 @@
 import sys
 
-from lastfm.config import USER_NAME
-from lastfm.tools.mylast import lastfm_network
+from .config import USER_NAME
+from .tools.mylast import lastfm_network
 
 # Prints a list of you last loved tracks on Last.fm.
 # Optional parameter: number of tracks

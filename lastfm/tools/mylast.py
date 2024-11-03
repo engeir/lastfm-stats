@@ -3,7 +3,7 @@ import sys
 import pendulum
 import pylast
 
-from lastfm.config import API_KEY, API_SECRET, PASSWORD_HASH, TIME_ZONE, USER_NAME
+from ..config import API_KEY, API_SECRET, PASSWORD_HASH, TIME_ZONE, USER_NAME
 
 # You have to have your own unique two values for API_KEY and API_SECRET
 # Obtain yours from https://www.last.fm/api/account for Last.fm

@@ -1,152 +1,110 @@
 """Sidebar component for the app."""
 
 import reflex as rx
-
-from lastfm import styles
-
-
-def sidebar_header() -> rx.Component:
-    """Sidebar header.
-
-    Returns
-    -------
-        The sidebar header component.
-    """
-    return rx.hstack(
-        # The logo.
-        rx.image(
-            src="/icon.svg",
-            height="2em",
-        ),
-        rx.spacer(),
-        # Link to Reflex GitHub repo.
-        rx.link(
-            rx.center(
-                rx.image(
-                    src="/github.svg",
-                    height="3em",
-                    padding="0.5em",
-                ),
-                box_shadow=styles.box_shadow,
-                bg="transparent",
-                border_radius=styles.border_radius,
-                _hover={
-                    "bg": styles.accent_color,
-                },
-            ),
-            href="https://github.com/reflex-dev/reflex",
-        ),
-        width="100%",
-        border_bottom=styles.border,
-        padding="1em",
-    )
+from reflex.page import get_decorated_pages
 
 
-def sidebar_footer() -> rx.Component:
-    """Sidebar footer.
-
-    Returns
-    -------
-        The sidebar footer component.
-    """
-    return rx.hstack(
-        rx.spacer(),
-        rx.link(
-            rx.text("Docs"),
-            href="https://reflex.dev/docs/getting-started/introduction/",
-        ),
-        rx.link(
-            rx.text("Blog"),
-            href="https://reflex.dev/blog/",
-        ),
-        width="100%",
-        border_top=styles.border,
-        padding="1em",
-    )
-
-
-def sidebar_item(text: str, icon: str, url: str) -> rx.Component:
-    """Sidebar item.
-
-    Args:
-        text: The text of the item.
-        icon: The icon of the item.
-        url: The URL of the item.
-
-    Returns
-    -------
-        rx.Component: The sidebar item component.
-    """
-    # Whether the item is active.
-    active = (rx.State.router.page.path == f"/{text.lower()}") | (
-        (rx.State.router.page.path == "/") & text == "Home"
-    )
-
+def _sidebar_item(text: str, icon: str, href: str) -> rx.Component:
     return rx.link(
         rx.hstack(
-            rx.image(
-                src=icon,
-                height="2.5em",
-                padding="0.5em",
-            ),
-            rx.text(
-                text,
-            ),
-            bg=rx.cond(
-                active,
-                styles.accent_color,
-                "transparent",
-            ),
-            color=rx.cond(
-                active,
-                styles.accent_text_color,
-                styles.text_color,
-            ),
-            border_radius=styles.border_radius,
-            box_shadow=styles.box_shadow,
+            rx.icon(icon),
+            rx.text(text, size="4"),
             width="100%",
-            padding_x="1em",
+            padding_x="0.5rem",
+            padding_y="0.75rem",
+            align="center",
+            style={
+                "_hover": {
+                    "bg": rx.color("accent", 4),
+                    "color": rx.color("accent", 11),
+                },
+                "border-radius": "0.5em",
+            },
         ),
-        href=url,
+        href=href,
+        underline="none",
+        weight="medium",
+        width="100%",
+    )
+
+
+def _sidebar_items() -> rx.Component:
+    return rx.vstack(
+        # _sidebar_item("Dashboard", "layout-dashboard", "/#"),
+        # _sidebar_item("Projects", "square-library", "/#"),
+        # _sidebar_item("Analytics", "bar-chart-4", "/#"),
+        # _sidebar_item("Messages", "mail", "/#"),
+        *[
+            _sidebar_item(
+                text=page.get("title", page["route"].strip("/").capitalize()),
+                icon="music",
+                href=page["route"],
+            )
+            for page in get_decorated_pages()
+        ],
+        spacing="1",
         width="100%",
     )
 
 
 def sidebar() -> rx.Component:
-    """The sidebar.
-
-    Returns
-    -------
-        The sidebar component.
-    """
-    # Get all the decorated pages and add them to the sidebar.
-    from reflex.page import get_decorated_pages
-
     return rx.box(
-        rx.vstack(
-            sidebar_header(),
+        rx.desktop_only(
             rx.vstack(
-                *[
-                    sidebar_item(
-                        text=page.get("title", page["route"].strip("/").capitalize()),
-                        icon=page.get("image", "/github.svg"),
-                        url=page["route"],
-                    )
-                    for page in get_decorated_pages()
-                ],
-                width="100%",
-                overflow_y="auto",
-                align_items="flex-start",
-                padding="1em",
+                rx.hstack(
+                    rx.image(
+                        src="/logo.svg",
+                        width="2.25em",
+                        height="auto",
+                        border_radius="25%",
+                    ),
+                    rx.heading("Reflex", size="7", weight="bold"),
+                    align="center",
+                    justify="start",
+                    padding_x="0.5rem",
+                    width="100%",
+                ),
+                _sidebar_items(),
+                spacing="5",
+                # position="fixed",
+                # left="0px",
+                # top="0px",
+                # z_index="5",
+                padding_x="1em",
+                padding_y="1.5em",
+                bg=rx.color("accent", 3),
+                align="start",
+                # height="100%",
+                height="650px",
+                width="16em",
             ),
-            rx.spacer(),
-            sidebar_footer(),
-            height="100dvh",
         ),
-        display=["none", "none", "block"],
-        min_width=styles.sidebar_width,
-        height="100%",
-        position="sticky",
-        top="0px",
-        border_right=styles.border,
+        rx.mobile_and_tablet(
+            rx.drawer.root(
+                rx.drawer.trigger(rx.icon("align-justify", size=30)),
+                rx.drawer.overlay(z_index="5"),
+                rx.drawer.portal(
+                    rx.drawer.content(
+                        rx.vstack(
+                            rx.box(
+                                rx.drawer.close(rx.icon("x", size=30)),
+                                width="100%",
+                            ),
+                            _sidebar_items(),
+                            spacing="5",
+                            width="100%",
+                        ),
+                        top="auto",
+                        right="auto",
+                        height="100%",
+                        width="20em",
+                        padding="1.5em",
+                        bg=rx.color("accent", 2),
+                    ),
+                    width="100%",
+                ),
+                direction="left",
+            ),
+            padding="1em",
+        ),
     )

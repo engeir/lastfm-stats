@@ -3,7 +3,7 @@ import time
 import pandas as pd
 import requests
 
-from lastfm.config import API_KEY, USER_NAME
+from .config import API_KEY, USER_NAME
 
 # how long to pause between consecutive API requests
 pause_duration = 0.2
@@ -74,13 +74,16 @@ def get_scrobbles(
     page=1,
     pages=0,
 ):
-    """
-    method: api method
-    username/key: api credentials
-    limit: api lets you retrieve up to 200 records per call
-    extended: api lets you retrieve extended data for each track, 0=no, 1=yes
-    page: page of results to start retrieving at
-    pages: how many pages of results to retrieve. if 0, get as many as api can return.
+    """Download scrobbles from last.fm.
+
+    Parameters
+    ----------
+    method : api method.
+    username/key : api credentials
+    limit : api lets you retrieve up to 200 records per call
+    extended : api lets you retrieve extended data for each track, 0=no, 1=yes
+    page : page of results to start retrieving at
+    pages : how many pages of results to retrieve. if 0, get as many as api can return.
     """
     # initialize url and lists to contain response fields
     url = "https://ws.audioscrobbler.com/2.0/?method=user.get{}&user={}&api_key={}&limit={}&extended={}&page={}&format=json"

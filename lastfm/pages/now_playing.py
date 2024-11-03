@@ -1,12 +1,15 @@
 """The now-playing page."""
 
+import plotly.express as px
 import pylast
 import reflex as rx
+import reflex_chakra as rc
 
-from lastfm.config import USER_NAME
-from lastfm.templates import template
-from lastfm.tools.get_lyrics import get_lyrics
-from lastfm.tools.mylast import lastfm_network
+from ..config import USER_NAME
+from ..templates import template
+from ..tools.csv_lookup import CurrentStats
+from ..tools.get_lyrics import get_lyrics
+from ..tools.mylast import lastfm_network
 
 
 def _convert_ms_to_hms(milliseconds: float | str) -> str:
@@ -24,6 +27,9 @@ class NowPlaying:
     def reset(self) -> None:
         self.now_playing = ""
 
+    def not_a_song(self) -> None:
+        self.now_playing = "Nothing is playing"
+
     def find_now_playing(self) -> pylast.Track:
         self.reset()
         try:
@@ -38,6 +44,12 @@ class NowPlaying:
             print(f"Error: {e}", "error")
         else:
             return "I'm not listening to music atm :/"
+
+
+def list_to_written_listing(elements: list[str]) -> str:
+    """Convert a list of elements to a written list ending with 'and'."""
+    all_but_one = '", "'.join(elements[:-1])
+    return f'{all_but_one}", and "{elements[-1]}'
 
 
 class NowPlayingState(rx.State):
@@ -57,6 +69,8 @@ class NowPlayingState(rx.State):
     duration = ""
     info = ""
     lyrics = ""
+    figure_history = px.line()
+    figure_top_songs = px.line()
     processing = False
     complete = False
     playing = False
@@ -71,43 +85,94 @@ class NowPlayingState(rx.State):
             case "I'm not listening to music atm :/":
                 self.playing = False
             case _:
-                self.playing = True
-                self.song = response.get_name()
-                self.album_cover = response.get_cover_image()
-                self.playcount = response.get_userplaycount()
-                artist = response.get_artist()
-                artist.username = USER_NAME
-                self.artist = artist.get_name()
-                self.artist_playcount = artist.get_userplaycount()
-                # self.artist_top_tracs = str(artist.get_top_tracks(limit=5)[0])
-                # self.artist_top_albums = str(artist.get_top_albums(limit=5))
-                self.artist_top_tracs = (
-                    '"'
-                    + '", "'.join(
-                        [a.item.get_name() for a in artist.get_top_tracks(limit=5)]
-                    )
-                    + '"'
-                )
-                self.artist_top_albums = (
-                    '"'
-                    + '", "'.join(
-                        [a.item.get_name() for a in artist.get_top_albums(limit=5)]
-                    )
-                    + '"'
-                )
-                self.artist_similar = (
-                    '"'
-                    + '", "'.join(
-                        [a.item.get_name() for a in artist.get_similar(limit=5)]
-                    )
-                    + '"'
-                )
-                self.album = response.get_album().get_name()
-                self.album_playcount = response.get_album().get_userplaycount()
-                self.duration = _convert_ms_to_hms(response.get_duration())
-                self.info = response.get_mbid()
-                self.lyrics = get_lyrics(self.artist, self.song)
+                self._extracted_from_get_nowplaying_11(response)
         self.processing, self.complete = False, True
+        yield
+
+    @staticmethod
+    def _protected_response(response: pylast.Track, method: str) -> str:
+        try:
+            out = getattr(response, method)()
+        except pylast.WSError:
+            out = "Not found"
+        return out
+
+    def _extracted_from_get_nowplaying_11(self, response: pylast.Track) -> None:
+        self.playing = True
+        self.song = self._protected_response(response, "get_name")
+        self.album_cover = self._protected_response(response, "get_cover_image")
+        self.playcount = self._protected_response(response, "get_userplaycount")
+        artist = response.get_artist()
+        artist.username = USER_NAME
+        self.artist = artist.get_name()
+        self.artist_playcount = self._protected_response(artist, "get_userplaycount")
+        if self.song == "Not found" or self.playcount == "Not found":
+            NowPlaying().not_a_song()
+            self.playing = False
+            return
+        # self.artist_top_tracs = str(artist.get_top_tracks(limit=5)[0])
+        # self.artist_top_albums = str(artist.get_top_albums(limit=5))
+        self.artist_top_tracs = (
+            '"'
+            + list_to_written_listing(
+                [a.item.get_name() for a in artist.get_top_tracks(limit=5)]
+            )
+            + '"'
+        )
+        self.artist_top_albums = (
+            '"'
+            + list_to_written_listing(
+                [a.item.get_name() for a in artist.get_top_albums(limit=5)]
+            )
+            + '"'
+        )
+        self.artist_similar = (
+            '"'
+            + list_to_written_listing(
+                [a.item.get_name() for a in artist.get_similar(limit=5)]
+            )
+            + '"'
+        )
+        self.album = response.get_album().get_name()
+        self.album_playcount = response.get_album().get_userplaycount()
+        self.duration = _convert_ms_to_hms(response.get_duration())
+        self.info = response.get_mbid()
+        self.lyrics = get_lyrics(self.artist, self.song)
+        current_stats = CurrentStats()
+        self.figure_history = current_stats.listening_history(self.artist)
+        self.figure_top_songs = current_stats.top_songs(self.artist)
+
+
+class NowPlayingStats(rx.State):
+    """Statistics about the song and artist that is playing."""
+
+    figure = CurrentStats().listening_history(NowPlayingState.artist)
+
+    # def set_selected_country(self, country):
+    #     self.df = px.data.gapminder().query(f"country=='{country}'")
+    #     self.figure = px.line(
+    #         self.df,
+    #         x="year",
+    #         y="lifeExp",
+    #         title=f"Life expectancy in {country}",
+    #     )
+
+
+def line_chart_with_state() -> rx.vstack:
+    return rx.vstack(
+        # rx.select(
+        #     [
+        #         "China",
+        #         "France",
+        #         "United Kingdom",
+        #         "United States",
+        #         "Canada",
+        #     ],
+        #     # default_value="Canada",
+        #     # on_change=NowPlayingState.set_selected_country,
+        # ),
+        rx.plotly(data=NowPlayingStats.figure),
+    )
 
 
 @template(route="/now-playing", title="Now Playing")
@@ -125,90 +190,82 @@ def now_playing() -> rx.Component:
         rx.button(
             "What are you listening to, Eirik?",
             on_click=NowPlayingState.get_nowplaying,
-            is_loading=NowPlayingState.processing,
+            loading=NowPlayingState.processing,
             width="100%",
         ),
         rx.cond(
             NowPlayingState.complete,
-            rx.chakra.heading(NowPlayingState.now_playing, color="purple", size="md"),
-        ),
-        rx.cond(
-            NowPlayingState.playing,
-            rx.chakra.hstack(
-                rx.image(src=NowPlayingState.album_cover),
-                # https://reflex.dev/docs/library/chakra/media/icon/
-                rx.chakra.list(
-                    rx.chakra.list_item(
-                        rx.chakra.icon(tag="time", color=list_item_color),
-                        " It is " + NowPlayingState.duration + " long",
-                    ),
-                    rx.chakra.list_item(
-                        rx.chakra.icon(tag="repeat", color=list_item_color),
-                        " I have listened to this track "
-                        + NowPlayingState.playcount
-                        + " times :)",
-                    ),
-                    rx.chakra.list_item(
-                        rx.chakra.icon(tag="repeat", color=list_item_color),
-                        " I have listened to the album "
-                        + NowPlayingState.album
-                        + " "
-                        + NowPlayingState.album_playcount
-                        + " times :)",
-                    ),
-                    rx.chakra.list_item(
-                        rx.chakra.icon(tag="repeat", color=list_item_color),
-                        " I have listened to "
-                        + NowPlayingState.artist
-                        + " "
-                        + NowPlayingState.artist_playcount
-                        + " times :)",
-                    ),
-                    rx.chakra.list_item(
-                        rx.chakra.icon(tag="star", color=list_item_color),
-                        " Their top 5 songs are " + NowPlayingState.artist_top_tracs,
-                    ),
-                    rx.chakra.list_item(
-                        rx.chakra.icon(tag="sun", color=list_item_color),
-                        " Their top 5 albums are " + NowPlayingState.artist_top_albums,
-                    ),
-                    rx.chakra.list_item(
-                        rx.chakra.icon(tag="view", color=list_item_color),
-                        " If you enjoy listening to "
-                        + NowPlayingState.artist
-                        + ", here are five similar artists! "
-                        + NowPlayingState.artist_similar,
-                    ),
-                    rx.chakra.list_item(
-                        rx.chakra.icon(tag="lock", color=list_item_color),
-                        " It's MusicBrainz ID is " + NowPlayingState.info,
-                    ),
-                    width="100%",
-                ),
-                spacing="10%",
-                width="80%",
-            ),
+            rc.heading(NowPlayingState.now_playing, color="purple", size="md"),
         ),
         rx.cond(
             NowPlayingState.playing,
             rx.vstack(
-                rx.markdown("## Lyrics"),
-                rx.markdown(
-                    "I searched on [Genius](https://genius.com/) for the lyrics of "
-                    + f'"{NowPlayingState.artist}" (artist) and "{NowPlayingState.song}" (song), '
-                    + "and this is what I found:"
-                ),
-                rx.box(
-                    rx.code_block(
-                        NowPlayingState.lyrics,
-                        language="markup",
-                        copy_button=True,
-                        wrap_long_lines=True,
-                        show_line_numbers=True,
+                rc.hstack(
+                    rx.image(src=NowPlayingState.album_cover),
+                    # https://reflex.dev/docs/library/chakra/media/icon/
+                    rc.list(
+                        rc.list_item(
+                            rc.icon(tag="time", color=list_item_color),
+                            f" It is {NowPlayingState.duration} long",
+                        ),
+                        rc.list_item(
+                            rc.icon(tag="repeat", color=list_item_color),
+                            f" I have listened to this track {NowPlayingState.playcount} times :)",
+                        ),
+                        rc.list_item(
+                            rc.icon(tag="repeat", color=list_item_color),
+                            f" I have listened to the album {NowPlayingState.album} {NowPlayingState.album_playcount} times :)",
+                        ),
+                        rc.list_item(
+                            rc.icon(tag="repeat", color=list_item_color),
+                            f" I have listened to {NowPlayingState.artist} {NowPlayingState.artist_playcount} times :)",
+                        ),
+                        rc.list_item(
+                            rc.icon(tag="star", color=list_item_color),
+                            f" Their top 5 songs are {NowPlayingState.artist_top_tracs}",
+                        ),
+                        rc.list_item(
+                            rc.icon(tag="sun", color=list_item_color),
+                            f" Their top 5 albums are {NowPlayingState.artist_top_albums}",
+                        ),
+                        rc.list_item(
+                            rc.icon(tag="view", color=list_item_color),
+                            f" If you enjoy listening to {NowPlayingState.artist}, here are five similar artists! {NowPlayingState.artist_similar}",
+                        ),
+                        rc.list_item(
+                            rc.icon(tag="lock", color=list_item_color),
+                            f" It's MusicBrainz ID is {NowPlayingState.info}",
+                        ),
+                        width="100%",
                     ),
-                    height="50vh",
+                    spacing="10%",
                     width="80%",
-                    overflow_y="auto",
+                ),
+                rx.vstack(
+                    rx.markdown("## Lyrics"),
+                    rx.markdown(
+                        "I searched on [Genius](https://genius.com/) for the lyrics of "
+                        + f'"{NowPlayingState.artist}" (artist) and "{NowPlayingState.song}" (song), '
+                        + "and this is what I found:"
+                    ),
+                    rx.box(
+                        rx.code_block(
+                            NowPlayingState.lyrics,
+                            language="markup",
+                            copy_button=True,
+                            wrap_long_lines=True,
+                            show_line_numbers=True,
+                        ),
+                        height="50vh",
+                        width="80%",
+                        overflow_y="auto",
+                    ),
+                ),
+                rx.center(
+                    rx.plotly(data=NowPlayingState.figure_history),
+                ),
+                rx.center(
+                    rx.plotly(data=NowPlayingState.figure_top_songs),
                 ),
             ),
         ),

@@ -87,6 +87,7 @@
 .hypothesis/
 .installed.cfg
 .ipynb_checkpoints
+.mise.local.toml
 .mr.developer.cfg
 .mypy_cache/
 .nox/
@@ -110,6 +111,7 @@ ENV/
 MANIFEST
 __pycache__/
 __pypackages__/
+assets/external/
 build/
 celerybeat-schedule
 celerybeat.pid
@@ -146,4 +148,4 @@ var/
 venv.bak/
 venv/
 wheels/
-.mise.local.toml
+assets/

@@ -1,11 +1,12 @@
 """Styles for the app."""
 
 import reflex as rx
+import reflex_chakra as rc
 
 border_radius = "0.375rem"
 box_shadow = "0px 0px 0px 1px rgba(84, 82, 95, 0.14)"
 border = "1px solid #F4F3F6"
-text_color = "black"
+text_color = rx.color("accent", 11)
 accent_text_color = "#1A1060"
 accent_color = "#F5EFFE"
 hover_accent_color = {"_hover": {"color": accent_color}}
@@ -36,12 +37,12 @@ overlapping_button_style = {
 }
 
 base_style = {
-    rx.chakra.MenuButton: {
+    rc.MenuButton: {
         "width": "3em",
         "height": "3em",
         **overlapping_button_style,
     },
-    rx.chakra.MenuItem: hover_accent_bg,
+    rc.MenuItem: hover_accent_bg,
 }
 
 markdown_style = {

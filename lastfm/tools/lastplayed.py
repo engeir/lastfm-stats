@@ -1,10 +1,11 @@
 """Show 20 last played tracks."""
+
 import argparse
 
 import pylast
 
-from lastfm.config import USER_NAME
-from lastfm.tools.mylast import lastfm_network, track_and_timestamp
+from .config import USER_NAME
+from .tools.mylast import lastfm_network, track_and_timestamp
 
 
 def get_recent_tracks(username, number):

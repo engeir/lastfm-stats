@@ -6,66 +6,52 @@ repos:
       - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
-
   - repo: local
     hooks:
-      - id: check-added-large-files
-        name: Check for added large files
-        stages: [commit]
-        entry: check-added-large-files
-        language: system
-
       - id: ruff_format
-        name: ruff_format
-        stages: [commit]
+        name: Ruff format
+        stages: [pre-commit]
         language: system
-        entry: poetry run ruff format src tests
+        entry: uv run ruff format
         types: [python]
-
-      - id: ruff
-        name: ruff
-        stages: [commit]
+      - id: ruff_lint
+        name: Ruff lint
+        stages: [pre-commit]
         language: system
-        entry: poetry run ruff --fix src tests
+        entry: uv run ruff check --fix
         types: [python]
-
       - id: xdoctest
         name: xdoctest
-        stages: [commit]
+        stages: [pre-commit]
         language: system
-        entry: poetry run xdoctest
+        entry: uv run xdoctest
         types: [python]
-
       - id: pydocstringformatter
         name: pydocstringformatter
-        stages: [commit]
+        stages: [pre-commit]
         language: system
-        entry: poetry run pydocstringformatter src tests
+        entry: uv run pydocstringformatter
         types: [python]
-
       - id: mypy
         name: mypy
-        stages: [commit]
+        stages: [pre-commit]
         language: system
-        entry: poetry run mypy
+        entry: uv run mypy
         types: [python]
         require_serial: true
-
       - id: pydoclint
         name: pydoclint
-        stages: [commit]
+        stages: [pre-commit]
         language: system
-        entry: poetry run pydoclint src tests
+        entry: uv run pydoclint
         types: [python]
         require_serial: true
-
-      - id: pytest
-        name: pytest
-        stages: [commit]
-        language: system
-        entry: poetry run pytest tests
-        types: [python]
-        pass_filenames: false
-
+      # - id: pytest
+      #   name: pytest
+      #   stages: [commit]
+      #   language: system
+      #   entry: uv run pytest tests
+      #   types: [python]
+      #   pass_filenames: false
 ci:
   autoupdate_schedule: quarterly
