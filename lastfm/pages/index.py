@@ -4,6 +4,14 @@ import reflex as rx
 
 # from .. import styles
 from ..templates import template
+from ..tools.download_scrobbles import GetScrobbles
+
+
+class UpdateData(rx.State):
+    text = "Update!"
+
+    def update(self):
+        GetScrobbles().save()
 
 
 @template(route="/", title="Home", image="/github.svg")
@@ -26,5 +34,11 @@ def index() -> rx.Component:
                 [Now Playing](/now-playing) page.
                 """,
             ),
+            rx.button(UpdateData.text, on_click=UpdateData.update),
+            # rx.button(
+            #     "Refresh ...",
+            #     on_click=GetScrobbles().save(),
+            #     # width="10%",
+            # ),
         )
     )

@@ -7,9 +7,9 @@ import reflex_chakra as rc
 
 from ..config import USER_NAME
 from ..templates import template
-from ..tools.csv_lookup import CurrentStats
 from ..tools.get_lyrics import get_lyrics
 from ..tools.mylast import lastfm_network
+from ..tools.stats_lookup import CurrentStats
 
 
 def _convert_ms_to_hms(milliseconds: float | str) -> str:
@@ -85,7 +85,7 @@ class NowPlayingState(rx.State):
             case "I'm not listening to music atm :/":
                 self.playing = False
             case _:
-                self._extracted_from_get_nowplaying_11(response)
+                self._update_now_playing_attributes(response)
         self.processing, self.complete = False, True
         yield
 
@@ -97,7 +97,7 @@ class NowPlayingState(rx.State):
             out = "Not found"
         return out
 
-    def _extracted_from_get_nowplaying_11(self, response: pylast.Track) -> None:
+    def _update_now_playing_attributes(self, response: pylast.Track) -> None:
         self.playing = True
         self.song = self._protected_response(response, "get_name")
         self.album_cover = self._protected_response(response, "get_cover_image")
@@ -139,40 +139,40 @@ class NowPlayingState(rx.State):
         self.info = response.get_mbid()
         self.lyrics = get_lyrics(self.artist, self.song)
         current_stats = CurrentStats()
-        self.figure_history = current_stats.listening_history(self.artist)
+        self.figure_history = current_stats.listening_history_db(self.artist)
         self.figure_top_songs = current_stats.top_songs(self.artist)
 
 
-class NowPlayingStats(rx.State):
-    """Statistics about the song and artist that is playing."""
+# class NowPlayingStats(rx.State):
+#     """Statistics about the song and artist that is playing."""
+#
+#     figure = CurrentStats().listening_history_db(str(NowPlayingState.artist))
+#
+#     # def set_selected_country(self, country):
+#     #     self.df = px.data.gapminder().query(f"country=='{country}'")
+#     #     self.figure = px.line(
+#     #         self.df,
+#     #         x="year",
+#     #         y="lifeExp",
+#     #         title=f"Life expectancy in {country}",
+#     #     )
 
-    figure = CurrentStats().listening_history(NowPlayingState.artist)
 
-    # def set_selected_country(self, country):
-    #     self.df = px.data.gapminder().query(f"country=='{country}'")
-    #     self.figure = px.line(
-    #         self.df,
-    #         x="year",
-    #         y="lifeExp",
-    #         title=f"Life expectancy in {country}",
-    #     )
-
-
-def line_chart_with_state() -> rx.vstack:
-    return rx.vstack(
-        # rx.select(
-        #     [
-        #         "China",
-        #         "France",
-        #         "United Kingdom",
-        #         "United States",
-        #         "Canada",
-        #     ],
-        #     # default_value="Canada",
-        #     # on_change=NowPlayingState.set_selected_country,
-        # ),
-        rx.plotly(data=NowPlayingStats.figure),
-    )
+# def line_chart_with_state() -> rx.vstack:
+#     return rx.vstack(
+#         # rx.select(
+#         #     [
+#         #         "China",
+#         #         "France",
+#         #         "United Kingdom",
+#         #         "United States",
+#         #         "Canada",
+#         #     ],
+#         #     # default_value="Canada",
+#         #     # on_change=NowPlayingState.set_selected_country,
+#         # ),
+#         rx.plotly(data=NowPlayingStats.figure),
+#     )
 
 
 @template(route="/now-playing", title="Now Playing")
