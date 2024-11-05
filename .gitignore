@@ -149,3 +149,5 @@ venv.bak/
 venv/
 wheels/
 assets/
+alembic/
+alembic.ini
