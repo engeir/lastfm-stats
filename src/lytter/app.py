@@ -411,19 +411,23 @@ def find_similar_tracks(
     for other_track, plays, other_ms in cursor.fetchall():
         if normalize_name(other_track, "track") == track_key_input:
             continue
-        score = fuzz.ratio(normalize_name(track, "track"), normalize_name(other_track, "track"))
+        score = fuzz.ratio(
+            normalize_name(track, "track"), normalize_name(other_track, "track")
+        )
         duration_match = (
             current_duration_ms is not None
             and other_ms is not None
             and abs(current_duration_ms - other_ms) <= 5_000  # noqa: PLR2004
         )
         if score >= 95 or (score >= 50 and duration_match):  # noqa: PLR2004
-            similar.append({
-                "track": other_track,
-                "plays": plays,
-                "duration_ms": other_ms,
-                "similarity": round(score),
-            })
+            similar.append(
+                {
+                    "track": other_track,
+                    "plays": plays,
+                    "duration_ms": other_ms,
+                    "similarity": round(score),
+                }
+            )
     return sorted(similar, key=lambda x: x["plays"], reverse=True)
 
 
@@ -509,7 +513,11 @@ def _spotify_search(artist: str, track: str) -> int | None:
         return None
     resp = requests.get(
         SPOTIFY_SEARCH_URL,
-        params={"q": f'track:"{track}" artist:"{artist}"', "type": "track", "limit": "1"},
+        params={
+            "q": f'track:"{track}" artist:"{artist}"',
+            "type": "track",
+            "limit": "1",
+        },
         headers={"Authorization": f"Bearer {token}"},
         timeout=10,
     )
@@ -726,7 +734,9 @@ def _get_dashboard_stats(conn: sqlite3.Connection) -> dict[str, object]:
     total_ms = sum(row[0] * row[1] for row in rows if row[1])
     known_track_count = sum(1 for row in rows if row[1])
     total_track_count = len(rows)
-    total_listening_time = format_listening_time(total_ms) if known_track_count > 0 else None
+    total_listening_time = (
+        format_listening_time(total_ms) if known_track_count > 0 else None
+    )
     current_streak, longest_streak = _compute_streaks(conn)
 
     return {
@@ -765,7 +775,9 @@ def _relative_time(ts: int) -> str:
     return f"{delta // 86400}d ago"
 
 
-def fetch_and_cache_track_metadata(artist: str, track: str, mbid: str | None = None) -> None:
+def fetch_and_cache_track_metadata(
+    artist: str, track: str, mbid: str | None = None
+) -> None:
     """Fetch and cache release date, album art, popularity, and global Last.fm stats.
 
     Sources tried in order:
@@ -786,7 +798,11 @@ def fetch_and_cache_track_metadata(artist: str, track: str, mbid: str | None = N
         try:
             resp = requests.get(
                 SPOTIFY_SEARCH_URL,
-                params={"q": f'track:"{track}" artist:"{artist}"', "type": "track", "limit": "1"},
+                params={
+                    "q": f'track:"{track}" artist:"{artist}"',
+                    "type": "track",
+                    "limit": "1",
+                },
                 headers={"Authorization": f"Bearer {token}"},
                 timeout=10,
             )
@@ -831,8 +847,16 @@ def fetch_and_cache_track_metadata(artist: str, track: str, mbid: str | None = N
                (artist, track, release_date, popularity, album_art_url,
                 global_listeners, global_plays, fetched_at)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-            (artist, track, release_date, popularity, album_art_url,
-             global_listeners, global_plays, int(_time.time())),
+            (
+                artist,
+                track,
+                release_date,
+                popularity,
+                album_art_url,
+                global_listeners,
+                global_plays,
+                int(_time.time()),
+            ),
         )
 
 
@@ -1068,29 +1092,45 @@ class CurrentStats:
         initial_start = max_dt - pd.DateOffset(years=3)
 
         fig = go.Figure()
-        fig.add_trace(go.Bar(
-            x=months, y=df["plays"].tolist(),
-            name="Monthly plays",
-            marker_color="#1f6feb", marker_opacity=0.6,
-            hovertemplate="%{y} plays<extra></extra>",
-        ))
-        fig.add_trace(go.Scatter(
-            x=months, y=df["rolling3"].round(1).tolist(),
-            name="3-month avg", mode="lines",
-            line=dict(color="#f78166", width=2),
-            hovertemplate="%{y:.1f} avg<extra></extra>",
-        ))
+        fig.add_trace(
+            go.Bar(
+                x=months,
+                y=df["plays"].tolist(),
+                name="Monthly plays",
+                marker_color="#1f6feb",
+                marker_opacity=0.6,
+                hovertemplate="%{y} plays<extra></extra>",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=months,
+                y=df["rolling3"].round(1).tolist(),
+                name="3-month avg",
+                mode="lines",
+                line=dict(color="#f78166", width=2),
+                hovertemplate="%{y:.1f} avg<extra></extra>",
+            )
+        )
         fig.update_layout(
-            paper_bgcolor="#161b22", plot_bgcolor="#161b22",
+            paper_bgcolor="#161b22",
+            plot_bgcolor="#161b22",
             font=dict(color="#f0f6fc"),
             legend=dict(bgcolor="#0d1117", bordercolor="#30363d", borderwidth=1),
-            bargap=0.1, hovermode="x unified",
+            bargap=0.1,
+            hovermode="x unified",
             margin=dict(t=10),
             xaxis=dict(
-                gridcolor="#30363d", color="#f0f6fc",
+                gridcolor="#30363d",
+                color="#f0f6fc",
                 range=[initial_start.strftime("%Y-%m-%d"), max_dt.strftime("%Y-%m-%d")],
-                rangeslider=dict(visible=True, bgcolor="#0d1117",
-                                 bordercolor="#30363d", borderwidth=1, thickness=0.3),
+                rangeslider=dict(
+                    visible=True,
+                    bgcolor="#0d1117",
+                    bordercolor="#30363d",
+                    borderwidth=1,
+                    thickness=0.3,
+                ),
                 rangeselector=dict(
                     buttons=[
                         dict(count=1, label="1y", step="year", stepmode="backward"),
@@ -1098,8 +1138,10 @@ class CurrentStats:
                         dict(count=5, label="5y", step="year", stepmode="backward"),
                         dict(step="all", label="All"),
                     ],
-                    bgcolor="#161b22", activecolor="#238636",
-                    bordercolor="#30363d", borderwidth=1,
+                    bgcolor="#161b22",
+                    activecolor="#238636",
+                    bordercolor="#30363d",
+                    borderwidth=1,
                     font=dict(color="#f0f6fc"),
                 ),
             ),
@@ -1210,11 +1252,13 @@ async def artist_stats(
         unique_albums = cursor.fetchone()[0]
 
         first_heard_ts = cursor.execute(
-            "SELECT MIN(timestamp) FROM musiclibrary WHERE artist_key = ?", (artist_key,)
+            "SELECT MIN(timestamp) FROM musiclibrary WHERE artist_key = ?",
+            (artist_key,),
         ).fetchone()[0]
         first_heard = (
             datetime.datetime.fromtimestamp(first_heard_ts).strftime("%-d %B %Y")
-            if first_heard_ts else None
+            if first_heard_ts
+            else None
         )
 
         # Get per-track play counts and durations
@@ -1275,7 +1319,9 @@ async def artist_stats(
         genres_fetched = True
         if not genres and _time.time() - genre_row[1] > GENRES_RETRY_DAYS * 86_400:
             with sqlite3.connect(DB_NAME) as conn:
-                conn.execute("DELETE FROM artist_genres WHERE artist = ?", (artist_name,))
+                conn.execute(
+                    "DELETE FROM artist_genres WHERE artist = ?", (artist_name,)
+                )
             background_tasks.add_task(fetch_and_cache_artist_genres, artist_name)
             genres_fetched = False
 
@@ -1294,9 +1340,15 @@ async def artist_stats(
         artist_bio = meta_row[0]
         artist_similar = json.loads(meta_row[1]) if meta_row[1] else []
         artist_metadata_fetched = True
-        if not artist_bio and not artist_similar and _time.time() - meta_row[2] > METADATA_RETRY_DAYS * 86_400:
+        if (
+            not artist_bio
+            and not artist_similar
+            and _time.time() - meta_row[2] > METADATA_RETRY_DAYS * 86_400
+        ):
             with sqlite3.connect(DB_NAME) as conn:
-                conn.execute("DELETE FROM artist_metadata WHERE artist = ?", (artist_name,))
+                conn.execute(
+                    "DELETE FROM artist_metadata WHERE artist = ?", (artist_name,)
+                )
             background_tasks.add_task(fetch_and_cache_artist_metadata, artist_name)
             artist_metadata_fetched = False
 
@@ -1418,9 +1470,7 @@ async def top_songs_html(request: Request):
         result = cursor.fetchall()
 
     songs = [{"artist": row[0], "track": row[1], "plays": row[2]} for row in result]
-    return templates.TemplateResponse(
-        request, "_top_songs_list.html", {"songs": songs}
-    )
+    return templates.TemplateResponse(request, "_top_songs_list.html", {"songs": songs})
 
 
 @app.get("/charts/listening-timeline")
@@ -1522,7 +1572,9 @@ async def listening_timeline(
         initial_start = initial_end = None
 
     fig.update_layout(
-        title="Daily Listening Activity (All Time)" if time_range == "all" else "Daily Listening Activity (Last 365 Days)",
+        title="Daily Listening Activity (All Time)"
+        if time_range == "all"
+        else "Daily Listening Activity (Last 365 Days)",
         xaxis_title="Date",
         yaxis_title="Number of Scrobbles",
         paper_bgcolor="#161b22",
@@ -1728,13 +1780,17 @@ async def on_this_day():
         by_year.setdefault(year, []).append({"artist": artist, "plays": plays})
 
     if not by_year:
-        return HTMLResponse('<p class="text-muted">No data for this day in previous years yet.</p>')
+        return HTMLResponse(
+            '<p class="text-muted">No data for this day in previous years yet.</p>'
+        )
 
     parts: list[str] = []
     for year, artists in by_year.items():
         ago = today.year - int(year)
         label = f"{ago} year{'s' if ago != 1 else ''} ago"
-        parts.append(f'<div class="mb-2"><span class="text-muted small me-2">{label} ({year})</span>')
+        parts.append(
+            f'<div class="mb-2"><span class="text-muted small me-2">{label} ({year})</span>'
+        )
         for entry in artists[:5]:
             artist = str(entry["artist"])
             plays = entry["plays"]
@@ -1817,9 +1873,9 @@ async def streak_history_html():
         parts.append(
             f'<div class="bar-chart-track">'
             f'<div class="bar-chart-fill" style="width:{pct}%;background:#238636"></div>'
-            f'</div>'
+            f"</div>"
             f'<span style="white-space:nowrap;color:#f0f6fc;text-align:right">'
-            f'<strong>{length}</strong> days</span>'
+            f"<strong>{length}</strong> days</span>"
             f'<span class="text-muted" style="white-space:nowrap">{date_label}</span>'
         )
     parts.append("</div>")
@@ -1856,7 +1912,7 @@ async def lost_artists_html():
         parts.append(
             f'<a href="/artist/{quote(artist)}" class="badge text-decoration-none" '
             f'style="background-color:var(--card-bg);color:var(--text-primary);'
-            f'border:1px solid var(--border-color);font-size:{font_size}rem;'
+            f"border:1px solid var(--border-color);font-size:{font_size}rem;"
             f'opacity:{opacity};padding:0.4em 0.7em" '
             f'title="Last heard {last_dt.strftime("%-d %b %Y")} · {plays} plays">'
             f"{artist}</a>"
@@ -1932,7 +1988,7 @@ async def calendar_heatmap_html():
             x = LEFT + week * STEP
             parts.append(
                 f'<text x="{x}" y="12" font-size="10" fill="#8b949e" font-family="sans-serif">'
-                f'{week_mon.strftime("%b")}</text>'
+                f"{week_mon.strftime('%b')}</text>"
             )
 
     # Day labels: Tue (index 1), Thu (index 3), Sat (index 5) — Mon is index 0
@@ -1969,9 +2025,7 @@ async def recent_favorites_html(request: Request):
     """Get recent favorites as HTML fragment for HTMX."""
     # Reuse the same query logic
     stats = await recent_stats()
-    return templates.TemplateResponse(
-        request, "_recent_favorites.html", {**stats}
-    )
+    return templates.TemplateResponse(request, "_recent_favorites.html", {**stats})
 
 
 @app.get("/html/recent-plays", response_class=HTMLResponse)
@@ -1994,9 +2048,7 @@ async def recent_plays_html(request: Request):
         }
         for row in rows
     ]
-    return templates.TemplateResponse(
-        request, "_recent_plays.html", {"plays": plays}
-    )
+    return templates.TemplateResponse(request, "_recent_plays.html", {"plays": plays})
 
 
 @app.get("/artist-top-songs")
@@ -2114,7 +2166,8 @@ async def album_stats(
         ).fetchone()[0]
         first_heard = (
             datetime.datetime.fromtimestamp(first_heard_ts).strftime("%-d %B %Y")
-            if first_heard_ts else None
+            if first_heard_ts
+            else None
         )
 
         # Best-effort album art from any cached track in this album
@@ -2237,7 +2290,8 @@ async def song_stats(
         ).fetchone()[0]
         first_heard = (
             datetime.datetime.fromtimestamp(first_heard_ts).strftime("%-d %B %Y")
-            if first_heard_ts else None
+            if first_heard_ts
+            else None
         )
 
         # Look up cached duration for this track
@@ -2284,7 +2338,9 @@ async def song_stats(
         ).fetchone()
         if lyrics_row is None:
             if os.environ.get("GENIUS_TOKEN"):
-                background_tasks.add_task(fetch_and_cache_lyrics, artist_name, track_name)
+                background_tasks.add_task(
+                    fetch_and_cache_lyrics, artist_name, track_name
+                )
             lyrics = None
             lyrics_fetched = False
         elif lyrics_row[0] is not None:
@@ -2300,7 +2356,9 @@ async def song_stats(
                     (artist_name, track_name),
                 )
                 if os.environ.get("GENIUS_TOKEN"):
-                    background_tasks.add_task(fetch_and_cache_lyrics, artist_name, track_name)
+                    background_tasks.add_task(
+                        fetch_and_cache_lyrics, artist_name, track_name
+                    )
                 lyrics_fetched = False
 
         # Track metadata (release date, art, popularity, global stats)
@@ -2311,7 +2369,9 @@ async def song_stats(
             (artist_name, track_name),
         ).fetchone()
         if meta_row is None:
-            background_tasks.add_task(fetch_and_cache_track_metadata, artist_name, track_name, mbid)
+            background_tasks.add_task(
+                fetch_and_cache_track_metadata, artist_name, track_name, mbid
+            )
             track_meta: dict[str, object] | None = None
             track_meta_fetched = False
         else:
@@ -2331,13 +2391,21 @@ async def song_stats(
                         "DELETE FROM track_metadata WHERE artist = ? AND track = ?",
                         (artist_name, track_name),
                     )
-                    background_tasks.add_task(fetch_and_cache_track_metadata, artist_name, track_name, mbid)
+                    background_tasks.add_task(
+                        fetch_and_cache_track_metadata, artist_name, track_name, mbid
+                    )
                     track_meta_fetched = False
 
         # Find similar recordings (variants of the same performance)
-        current_duration_ms = duration_row[0] if duration_row and duration_row[0] else None
-        track_duration = format_track_duration(current_duration_ms) if current_duration_ms else None
-        similar_tracks = find_similar_tracks(conn, artist_name, track_name, current_duration_ms)
+        current_duration_ms = (
+            duration_row[0] if duration_row and duration_row[0] else None
+        )
+        track_duration = (
+            format_track_duration(current_duration_ms) if current_duration_ms else None
+        )
+        similar_tracks = find_similar_tracks(
+            conn, artist_name, track_name, current_duration_ms
+        )
         combined_plays = total_plays + sum(t["plays"] for t in similar_tracks)
         combined_time = (
             format_listening_time(current_duration_ms * combined_plays)
@@ -2539,7 +2607,9 @@ async def search_all(q: str = "", limit: int = 5) -> dict:
     q_norm = normalize_text(q_lower)
 
     with sqlite3.connect(DB_NAME) as conn:
-        conn.create_function("NORM", 1, lambda s: normalize_text(s.lower()) if s else "")
+        conn.create_function(
+            "NORM", 1, lambda s: normalize_text(s.lower()) if s else ""
+        )
 
         artist_rows = conn.execute(
             """SELECT
@@ -3025,7 +3095,9 @@ async def duration_top_artists(request: Request, limit: int = 20):
 
 
 @app.get("/html/duration/longest-songs", response_class=HTMLResponse)
-async def duration_longest_songs(request: Request, limit: int = 20, min_plays: int = 10):
+async def duration_longest_songs(
+    request: Request, limit: int = 20, min_plays: int = 10
+):
     """Longest songs (by track duration) with at least min_plays plays."""
     with sqlite3.connect(DB_NAME) as conn:
         cursor = conn.cursor()
@@ -3059,7 +3131,9 @@ async def duration_longest_songs(request: Request, limit: int = 20, min_plays: i
 
 
 @app.get("/html/duration/shortest-songs", response_class=HTMLResponse)
-async def duration_shortest_songs(request: Request, limit: int = 20, min_plays: int = 10):
+async def duration_shortest_songs(
+    request: Request, limit: int = 20, min_plays: int = 10
+):
     """Shortest songs (by track duration) with at least min_plays plays."""
     with sqlite3.connect(DB_NAME) as conn:
         cursor = conn.cursor()
@@ -3176,8 +3250,12 @@ async def duration_avg_over_time_chart():
     # Build M:SS tick labels: one per minute, spanning the actual data range
     SECONDS_PER_MINUTE = 60
     if len(df) > 0:
-        tick_min = (int(df["avg_seconds"].min()) // SECONDS_PER_MINUTE) * SECONDS_PER_MINUTE
-        tick_max = ((int(df["avg_seconds"].max()) // SECONDS_PER_MINUTE) + 1) * SECONDS_PER_MINUTE
+        tick_min = (
+            int(df["avg_seconds"].min()) // SECONDS_PER_MINUTE
+        ) * SECONDS_PER_MINUTE
+        tick_max = (
+            (int(df["avg_seconds"].max()) // SECONDS_PER_MINUTE) + 1
+        ) * SECONDS_PER_MINUTE
     else:
         tick_min, tick_max = 3 * SECONDS_PER_MINUTE, 5 * SECONDS_PER_MINUTE
     tick_vals = list(range(tick_min, tick_max + 1, SECONDS_PER_MINUTE))
@@ -3268,7 +3346,7 @@ async def duration_histogram():
         else:
             bucketed[bucket] = (songs, plays)
 
-    labels = [f"{i}-{i+1}m" for i in range(cap)]
+    labels = [f"{i}-{i + 1}m" for i in range(cap)]
     unique_songs = [bucketed.get(i, (0, 0))[0] for i in range(cap)]
     total_plays = [bucketed.get(i, (0, 0))[1] for i in range(cap)]
     if overflow_songs:
@@ -3352,7 +3430,15 @@ async def yearly_time_patterns_duration(year: int):
         weekly_raw = {int(row[0]): row[1] / 60_000 for row in cursor.fetchall()}
         # strftime('%w'): 0=Sunday … 6=Saturday; reorder to Mon–Sun
         day_order = [1, 2, 3, 4, 5, 6, 0]
-        day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        day_names = [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+        ]
         weekly_data = [round(weekly_raw.get(d, 0), 1) for d in day_order]
 
     return {"hourly": hourly_data, "weekly": weekly_data, "day_names": day_names}
@@ -3601,7 +3687,9 @@ def _aggregate_genres(
             weight = int(entry.get("weight", 1))
             totals[tag] = totals.get(tag, 0.0) + plays * (weight / 100)
     sorted_tags = sorted(totals.items(), key=lambda x: x[1], reverse=True)
-    return [{"genre": tag, "score": round(score, 1)} for tag, score in sorted_tags[:top_n]]
+    return [
+        {"genre": tag, "score": round(score, 1)} for tag, score in sorted_tags[:top_n]
+    ]
 
 
 @app.get("/genre-stats", response_class=HTMLResponse)
@@ -3614,9 +3702,7 @@ async def genre_stats_page(request: Request):
                 "SELECT DISTINCT strftime('%Y', timestamp, 'unixepoch') as year FROM musiclibrary ORDER BY year DESC"
             ).fetchall()
         ]
-    return templates.TemplateResponse(
-        request, "genre_stats.html", {"years": years}
-    )
+    return templates.TemplateResponse(request, "genre_stats.html", {"years": years})
 
 
 @app.get("/html/genre/top-genres", response_class=HTMLResponse)
@@ -3631,9 +3717,7 @@ async def genre_top_genres(request: Request, limit: int = 20):
                GROUP BY m.artist""",
         ).fetchall()
     genres = _aggregate_genres(rows, top_n=limit)
-    return templates.TemplateResponse(
-        request, "_genre_list.html", {"genres": genres}
-    )
+    return templates.TemplateResponse(request, "_genre_list.html", {"genres": genres})
 
 
 @app.get("/html/genre/top-genres-year", response_class=HTMLResponse)
@@ -3650,9 +3734,7 @@ async def genre_top_genres_year(request: Request, year: str, limit: int = 20):
             (year,),
         ).fetchall()
     genres = _aggregate_genres(rows, top_n=limit)
-    return templates.TemplateResponse(
-        request, "_genre_list.html", {"genres": genres}
-    )
+    return templates.TemplateResponse(request, "_genre_list.html", {"genres": genres})
 
 
 @app.get("/charts/genre/evolution")
@@ -3676,13 +3758,17 @@ async def genre_evolution_chart(limit: int = 25):
         for entry in json.loads(tags_json):
             tag = str(entry["tag"]).lower()
             weight = int(entry.get("weight", 1))
-            year_totals[year][tag] = year_totals[year].get(tag, 0.0) + plays * (weight / 100)
+            year_totals[year][tag] = year_totals[year].get(tag, 0.0) + plays * (
+                weight / 100
+            )
 
     overall: dict[str, float] = {}
     for ytags in year_totals.values():
         for tag, score in ytags.items():
             overall[tag] = overall.get(tag, 0.0) + score
-    top_genres = [g for g, _ in sorted(overall.items(), key=lambda x: x[1], reverse=True)[:limit]]
+    top_genres = [
+        g for g, _ in sorted(overall.items(), key=lambda x: x[1], reverse=True)[:limit]
+    ]
 
     years = sorted(year_totals.keys())
     # z[row=genre][col=year], genres sorted descending so top genre is at top
@@ -3693,7 +3779,9 @@ async def genre_evolution_chart(limit: int = 25):
         row_t: list[str] = []
         for y in years:
             total = sum(year_totals[y].values())
-            pct = round(year_totals[y].get(genre, 0.0) / total * 100, 1) if total else 0.0
+            pct = (
+                round(year_totals[y].get(genre, 0.0) / total * 100, 1) if total else 0.0
+            )
             row_z.append(pct)
             row_t.append(f"{genre}<br>{y}: {pct}%")
         z.append(row_z)
@@ -3776,22 +3864,50 @@ async def genre_ranking_chart():
         for entry in json.loads(tags_json):
             tag = str(entry["tag"]).lower()
             weight = int(entry.get("weight", 1))
-            year_totals[year][tag] = year_totals[year].get(tag, 0.0) + plays * (weight / 100)
+            year_totals[year][tag] = year_totals[year].get(tag, 0.0) + plays * (
+                weight / 100
+            )
 
     overall: dict[str, float] = {}
     for ytags in year_totals.values():
         for tag, score in ytags.items():
             overall[tag] = overall.get(tag, 0.0) + score
     # Candidate pool: top 30 overall
-    candidates = [g for g, _ in sorted(overall.items(), key=lambda x: x[1], reverse=True)[:30]]
+    candidates = [
+        g for g, _ in sorted(overall.items(), key=lambda x: x[1], reverse=True)[:30]
+    ]
 
     palette = [
-        "#58a6ff", "#3fb950", "#f78166", "#d2a8ff", "#ffa657",
-        "#79c0ff", "#56d364", "#ff7b72", "#e3b341", "#bc8cff",
-        "#ff9bce", "#7ee787", "#ffa198", "#a5d6ff", "#f0883e",
-        "#cae8ff", "#b3d4f5", "#ffdcd7", "#ddf4ff", "#d4edda",
-        "#ffb3b3", "#b5f4a5", "#c5def5", "#ffe4c4", "#e2c9f5",
-        "#ffd1a9", "#c9f0d1", "#f5c9e2", "#c9e2f5", "#f5f0c9",
+        "#58a6ff",
+        "#3fb950",
+        "#f78166",
+        "#d2a8ff",
+        "#ffa657",
+        "#79c0ff",
+        "#56d364",
+        "#ff7b72",
+        "#e3b341",
+        "#bc8cff",
+        "#ff9bce",
+        "#7ee787",
+        "#ffa198",
+        "#a5d6ff",
+        "#f0883e",
+        "#cae8ff",
+        "#b3d4f5",
+        "#ffdcd7",
+        "#ddf4ff",
+        "#d4edda",
+        "#ffb3b3",
+        "#b5f4a5",
+        "#c5def5",
+        "#ffe4c4",
+        "#e2c9f5",
+        "#ffd1a9",
+        "#c9f0d1",
+        "#f5c9e2",
+        "#c9e2f5",
+        "#f5f0c9",
     ]
     color_map = {g: palette[i % len(palette)] for i, g in enumerate(candidates)}
 
@@ -4037,8 +4153,12 @@ async def genre_detail(request: Request, genre_name: str):
             "total_plays": sum(play_counts.values()),
             "total_artists": len(top_artists),
             "top_artists": top_artists,
-            "top_tracks": [{"artist": r[0], "track": r[1], "plays": r[2]} for r in top_tracks_rows],
-            "top_albums": [{"artist": r[0], "album": r[1], "plays": r[2]} for r in top_albums_rows],
+            "top_tracks": [
+                {"artist": r[0], "track": r[1], "plays": r[2]} for r in top_tracks_rows
+            ],
+            "top_albums": [
+                {"artist": r[0], "album": r[1], "plays": r[2]} for r in top_albums_rows
+            ],
             "monthly": [{"month": r[0], "plays": r[1]} for r in monthly_rows],
         },
     )
@@ -4062,21 +4182,21 @@ async def discovery_page(request: Request):
         if year not in years_data:
             years_data[year] = []
         font_size = round(0.2 + math.log(plays + 1) / math.log(max_plays + 1) * 2.2, 2)
-        years_data[year].append({
-            "artist": artist,
-            "date": dt.strftime("%-d %b"),
-            "plays": plays,
-            "font_size": font_size,
-        })
+        years_data[year].append(
+            {
+                "artist": artist,
+                "date": dt.strftime("%-d %b"),
+                "plays": plays,
+                "font_size": font_size,
+            }
+        )
 
     # Sort within each year by plays descending, then reverse years
     ordered = [
         (y, sorted(years_data[y], key=lambda e: e["plays"], reverse=True))
         for y in sorted(years_data.keys(), reverse=True)
     ]
-    return templates.TemplateResponse(
-        request, "discovery.html", {"years": ordered}
-    )
+    return templates.TemplateResponse(request, "discovery.html", {"years": ordered})
 
 
 @app.get("/artist-stats", response_class=HTMLResponse)
@@ -4159,16 +4279,70 @@ async def artist_loyalty_chart():
         font=dict(color="#f0f6fc"),
         margin=dict(t=20, l=60, r=80, b=60),
         xaxis=dict(
-            gridcolor="#30363d", color="#f0f6fc",
+            gridcolor="#30363d",
+            color="#f0f6fc",
             title="Listening span (years)",
             zeroline=False,
         ),
         yaxis=dict(
-            gridcolor="#30363d", color="#f0f6fc",
+            gridcolor="#30363d",
+            color="#f0f6fc",
             title="Total plays",
             zeroline=False,
         ),
         hovermode="closest",
+    )
+    return fig.to_dict()
+
+
+@app.get("/charts/artist-discovery-timeline")
+async def artist_discovery_timeline_chart():
+    """Find new unique artists discovered per month over time."""
+    with sqlite3.connect(DB_NAME) as conn:
+        rows = conn.execute(
+            """SELECT strftime('%Y-%m', timestamp, 'unixepoch') as month,
+                      COUNT(DISTINCT artist) as unique_artists
+               FROM musiclibrary
+               GROUP BY month
+               ORDER BY month"""
+        ).fetchall()
+
+    if not rows:
+        return go.Figure().to_dict()
+
+    months = [row[0] for row in rows]
+    artist_counts = [row[1] for row in rows]
+
+    fig = go.Figure(
+        go.Scatter(
+            x=months,
+            y=artist_counts,
+            mode="lines+markers",
+            fill="tozeroy",
+            line=dict(color="#f78166", width=2),
+            marker=dict(size=6, color="#f78166"),
+            fillcolor="rgba(247, 129, 102, 0.2)",
+            hovertemplate="%{x}<br>%{y} new artists<extra></extra>",
+        )
+    )
+    fig.update_layout(
+        paper_bgcolor="#161b22",
+        plot_bgcolor="#161b22",
+        font=dict(color="#f0f6fc"),
+        margin=dict(t=20, l=60, r=40, b=60),
+        xaxis=dict(
+            gridcolor="#30363d",
+            color="#f0f6fc",
+            title="Month",
+            tickangle=-45,
+        ),
+        yaxis=dict(
+            gridcolor="#30363d",
+            color="#f0f6fc",
+            title="New Artists Discovered",
+            zeroline=False,
+        ),
+        hovermode="x unified",
     )
     return fig.to_dict()
 
@@ -4326,10 +4500,14 @@ async def data_accumulated_listens(
             raw = pivot[label]
             first_pos = int((raw > 0).values.argmax()) if (raw > 0).any() else 0
             trimmed = cumsum[label].iloc[first_pos:]
-            datasets.append({
-                "label": label,
-                "data": [{"x": i, "y": float(v)} for i, v in enumerate(trimmed.tolist())],
-            })
+            datasets.append(
+                {
+                    "label": label,
+                    "data": [
+                        {"x": i, "y": float(v)} for i, v in enumerate(trimmed.tolist())
+                    ],
+                }
+            )
         return {"months": None, "datasets": datasets, "aligned": True}
 
     return {
@@ -4412,8 +4590,7 @@ async def data_time_spent_chartjs(item_type: str = "artists", limit: int = 50) -
     ms_vals = [row[1] for row in rows]
     hours = [round(ms / 3_600_000, 2) for ms in ms_vals]
     hover = [
-        f"{int(ms // 3_600_000)}h {int((ms % 3_600_000) // 60_000)}m"
-        for ms in ms_vals
+        f"{int(ms // 3_600_000)}h {int((ms % 3_600_000) // 60_000)}m" for ms in ms_vals
     ]
     return {"labels": labels, "values": hours, "hover": hover}
 
@@ -4581,7 +4758,9 @@ async def time_spent_chart(item_type: str = "artists", limit: int = 50):
     labels = [row[0] for row in rows][::-1]
     ms_vals = [row[1] for row in rows][::-1]
     hours = [ms / 3_600_000 for ms in ms_vals]
-    hover = [f"{int(ms // 3_600_000)}h {int((ms % 3_600_000) // 60_000)}m" for ms in ms_vals]
+    hover = [
+        f"{int(ms // 3_600_000)}h {int((ms % 3_600_000) // 60_000)}m" for ms in ms_vals
+    ]
 
     fig = go.Figure(
         go.Bar(

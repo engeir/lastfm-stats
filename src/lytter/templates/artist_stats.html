@@ -6,15 +6,34 @@
   <div class="row mb-4">
     <div class="col-12">
       <h1>Artist Stats</h1>
-      <p class="text-muted">Listening span vs total plays — bubble size = unique tracks. Top 100 artists.</p>
+      <p class="text-muted">Listening patterns and discovery trends across your top artists.</p>
     </div>
   </div>
 
+  <!-- Artist Discovery Timeline -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Artist Discovery Timeline</h5>
+          <p class="text-muted small">New unique artists discovered each month.</p>
+          <div id="discovery-chart" style="height: 400px;">
+            <div class="d-flex justify-content-center align-items-center h-100">
+              <p class="text-muted">Loading chart...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Artist Loyalty -->
   <div class="row">
     <div class="col-12">
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">Artist Loyalty</h5>
+          <p class="text-muted small">Listening span vs total plays — bubble size = unique tracks. Top 100 artists.</p>
           <div id="loyalty-chart" style="height: 550px;">
             <div class="d-flex justify-content-center align-items-center h-100">
               <p class="text-muted">Loading chart...</p>
@@ -29,6 +48,17 @@
 {% block scripts %}
   <script>
     if (typeof Plotly !== 'undefined') {
+      // Artist Discovery Timeline
+      fetch('/charts/artist-discovery-timeline')
+        .then(r => r.json())
+        .then(data => {
+          Plotly.newPlot('discovery-chart', data.data, data.layout, { responsive: true, displayModeBar: false });
+        })
+        .catch(() => {
+          document.getElementById('discovery-chart').innerHTML = '<p class="text-muted">Error loading chart</p>';
+        });
+
+      // Artist Loyalty
       fetch('/charts/artist-loyalty')
         .then(r => r.json())
         .then(data => {
